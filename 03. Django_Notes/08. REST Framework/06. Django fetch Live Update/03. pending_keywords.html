@@ -1,0 +1,12 @@
+{% for keyword in keyword_pending %}
+<tr>
+    <td class="p-0 px-3" style="width: 40px;">{{ forloop.counter }}</td>
+    <td class="p-0 px-2">{{ keyword.keyword_name }}</td>
+    <td class="p-0 px-3 py-1">{{ keyword.logs }}</td>
+    <td class="p-0 px-3 py-1" style="width: 50px;">
+        <a href="{% url 'delete_pending_bulk_info_post' keyword.id %}" class="btn btn-danger p-1 px-2">
+            <i class="ti ti-trash"></i>
+        </a>
+    </td>
+</tr>
+{% endfor %}

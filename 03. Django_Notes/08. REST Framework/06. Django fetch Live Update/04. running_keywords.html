@@ -1,0 +1,19 @@
+
+<!--
+# For this section of views: 
+'running_keyword': render_to_string('infoapp/bulk/running_keywords.html', {'running_keyword': running_keyword}), 
+-->
+
+
+{% for keyword in running_keyword %}
+<tr>
+    <td class="p-0 px-2"> <i class="ti ti-lock"></i></td>
+    <td class="p-0 px-2">{{ keyword.keyword_name }}</td>
+    <td class="p-0 px-3 py-1">{{ keyword.logs }}</td>
+    <td class="p-0 px-3 py-1" style="width: 50px;">
+        <a href="{% url 'info_bulk_posting' %}" class="btn btn-muted p-1 px-2">
+            <i class="ti ti-lock"></i>
+        </a>
+    </td>
+</tr>
+{% endfor %}
