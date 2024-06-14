@@ -239,7 +239,6 @@ on:
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -254,6 +253,11 @@ jobs:
         with:
           username: \${{ secrets.DOCKER_USERNAME }}
           password: \${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Update Nginx configuration
+        run: |
+          chmod +x ./update_nginx.sh
+          ./update_nginx.sh \${{ secrets.DOMAIN_NAME }}
 
       - name: Build and push Docker image
         run: |
@@ -309,14 +313,14 @@ chmod +x entrypoint.sh
 
 # Create nginx directory and config
 mkdir nginx
-cat <<EOF > nginx/nginx.conf
+cat <<'EOF' > nginx/nginx.conf
 server {
     listen 80;
     server_name localhost;
 
     location / {
         proxy_pass http://web:8000;
-        proxy_set_header Host $host;
+        proxy_set_header Host \$host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -341,10 +345,24 @@ server {
 }
 EOF
 
+# Updating Nginx SH for Production Server
+cat <<'EOF' > update_nginx.sh
+#!/bin/sh
+
+# Your domain name (this will be provided by the CI/CD environment)
+DOMAIN=$1
+
+# Path to your nginx configuration file
+NGINX_CONFIG="nginx/nginx.conf"
+
+# Replace "localhost" with your domain name in nginx.conf
+sed -i "s/server_name localhost;/server_name $DOMAIN;/g" $NGINX_CONFIG
+EOF
 
 
 
-mkdir -p static media templates staticfiles
+
+mkdir -p static media templates staticfiles logs
 touch logs/console.log
 
 # Update Django settings for database and static/media files

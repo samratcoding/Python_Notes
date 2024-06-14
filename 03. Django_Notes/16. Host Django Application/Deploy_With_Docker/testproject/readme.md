@@ -2,13 +2,17 @@
 ```
 ▶️ venv
 🔽 .github/workflows
-  📄 pro.yml
+  📄 ci.yml
 ▶️ project_dir
 📄 Dockerfile
 📄 docker-compose.yml
 📄 requirements.txt
 📄 .env
-📄 setup.sh
+📄 entrypoint.sh
+📄 docker_prune.sh
+📄 update_nginx.sh
+📄 manage.py
+📄 readme.md
 ```
 
 # Docker Compose
@@ -18,6 +22,7 @@ docker-compose exec web python manage.py makemigrations
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser admin admin admin@admin.com
 docker-compose down
+docker-compose down -v # -v flag removes named volumes declared 
 
 docker-compose logs -f                 # View Logs
 docker-compose exec web sh             # Interactive Shell:
@@ -27,6 +32,9 @@ docker-compose logs -f celery_worker   # Verify Celery Worker
 docker stats                           # CPU Memory Network Block status
 docker stats your_container_name
 docker logs your_container_name
+
+docker-compose logs celery_worker_app1   # celery worker1 logs
+docker-compose logs celery_worker_app2   # celery worker2 logs
 ```
 
 ## How to add Docker secrect key in github action
@@ -39,6 +47,18 @@ Click on Add Secrect Button
 
 Name * : (Input Field) DOCKER_PASSWORD
 Secret * : your_docker_password
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_HOST
+Secret * : cloud_ip_address
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_USER
+Secret * : cloud_ip_username
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_SSH_KEY
+Secret * : ssh_key_from_cloud
 Click on Add Secrect Button
 
 Name * : (Input Field) DOMAIN_NAME

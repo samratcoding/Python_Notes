@@ -30,16 +30,25 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+'''
+CELERY_TASK_ROUTES = {
+    'app1.tasks.*': {'queue': 'app1'},
+    'app2.tasks.*': {'queue': 'app2'},
+}
+'''
+
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+
 # Need to run and check redis server before run celery
->>> redis-server
+# >>> redis-server
 
 
 # After setup or update -> navigate to your Django project directory, and run the Celery worker
 # Must open a new separate terminal and use these command
 # All tasks with celery will show in this tab ---
->>> celery -A project_name worker -l info                                 # replace project name (-l info / --loglevel=info )
->>> celery -A project_name worker -l info --concurrency=10 -n worker1@%h  # Running 10 task in worker1  @%h = hostname
->>> celery -A project_name worker -l info --concurrency=10 -n worker2     # Running 10 task in worker2
+# >>> celery -A project_name worker -l info                                 # replace project name (-l info / --loglevel=info )
+# >>> celery -A project_name worker -l info --concurrency=10 -n worker1@%h  # Running 10 task in worker1  @%h = hostname
+# >>> celery -A project_name worker -l info --concurrency=10 -n worker2     # Running 10 task in worker2
 
 '''
     But need to configure the targeted task
@@ -48,5 +57,5 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 '''
 
 # Debug
->>> celery -A project_name worker -l debug --concurrency=10 -n worker1@%h
->>> celery -A project_name worker -l debug --concurrency=10 -n worker2@%h
+# >>> celery -A project_name worker -l debug --concurrency=10 -n worker1@%h
+# >>> celery -A project_name worker -l debug --concurrency=10 -n worker2@%h
