@@ -90,8 +90,10 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo mkdir -p /srv/$PROJECT_NAME
+sudo chown your_user:your_user /srv/$PROJECT_NAME
 ```
-## Deploy to Server - Push code to GitHub
+## Push code from Local to GitHub
 ```sh
 git add .
 git commit -m "Setup local Docker and CI/CD"
@@ -100,6 +102,13 @@ git push origin main
 ```
 GitHub Actions will automatically build, test, and deploy
 ```
-# Cerbot for SSL in server
+## Note
+```
+If use dockerhub repo for deploy then, .env add in .dockerignore
+If github repo is public then, .env add in .gitignore
+```
+## Cerbot for SSL in server
+cd /srv/$PROJECT_NAME
+git clone https://github.com/your_username/your_project.git .
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
-docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d ylocalhost -d www.localhost
+docker-compose up --build

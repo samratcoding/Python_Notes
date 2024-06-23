@@ -105,7 +105,13 @@ RUN chmod +x /opt/app/entrypoint.sh
 CMD ["sh", "-c", "cron && /opt/app/entrypoint.sh"]
 EOF
 
-# Create production Dockerfile
+# Create Dockerfile Ignore
+echo "Creating .dockerignore"
+cat << EOF > .dockerignore
+.git
+EOF
+
+# Create prune Dockerfile
 echo "Creating docker_prune.sh..."
 cat << EOF > docker_prune.sh
 #!/bin/sh
@@ -281,10 +287,95 @@ gunicorn
 EOF
 
 
-# Create GitHub Actions workflow for CI/CD
-echo "Creating GitHub Actions workflow..."
+# Create GitHub Actions workflow for CI/CD without DockerHub
+echo "Creating GitHub Actions workflow without DockerHub..."
 mkdir -p .github/workflows
 cat << EOF > .github/workflows/ci.yml
+name: Django CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: $PROJECT_NAME
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
+    env:
+      DATABASE_URL: postgres://user:password@localhost:5432/$PROJECT_NAME
+      REDIS_URL: redis://localhost:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        python manage.py test
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.3
+      with:
+        host: \${{ secrets.SERVER_HOST }}
+        username: \${{ secrets.SERVER_USER }}
+        key: \${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /srv/$PROJECT_NAME
+          git pull origin main
+          docker-compose stop
+          docker-compose up --build -d
+          docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d \${{secrets.DOMAIN_NAME}} -d www.\${{secrets.DOMAIN_NAME}}
+    
+    - name: Update Nginx configuration
+      run: |
+        chmod +x ./update_nginx.sh
+        ./update_nginx.sh \${{ secrets.DOMAIN_NAME }} \${{secrets.SERVER_HOST}}
+EOF
+
+
+# Create GitHub Actions workflow for CI/CD with docker Hub
+echo "Creating GitHub Actions workflow..."
+mkdir -p .github/workflows
+cat << EOF > .github/workflows/ci_with_docker_hub.yml
 name: Django CI/CD
 
 on:
@@ -369,8 +460,9 @@ jobs:
         username: \${{ secrets.SERVER_USER }}
         key: \${{ secrets.SERVER_SSH_KEY }}
         script: |
+          cd /srv/$PROJECT_NAME
           docker pull \${{ secrets.DOCKER_USERNAME }}/$PROJECT_NAME:latest
-          docker-compose down --rmi all
+          docker-compose stop
           docker-compose up --build -d
           docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d \${{secrets.DOMAIN_NAME}} -d www.\${{secrets.DOMAIN_NAME}}
 
@@ -723,8 +815,10 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo mkdir -p /srv/$PROJECT_NAME
+sudo chown your_user:your_user /srv/$PROJECT_NAME
 ```
-## Deploy to Server - Push code to GitHub
+## Push code from Local to GitHub
 ```sh
 git add .
 git commit -m "Setup local Docker and CI/CD"
@@ -733,8 +827,16 @@ git push origin main
 ```
 GitHub Actions will automatically build, test, and deploy
 ```
-# Cerbot for SSL in server
+## Note
+```
+If use dockerhub repo for deploy then, .env add in .dockerignore
+If github repo is public then, .env add in .gitignore
+```
+## Cerbot for SSL in server
+cd /srv/$PROJECT_NAME
+git clone https://github.com/your_username/your_project.git .
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
+docker-compose up --build
 EOF
 
 echo "Setup complete. You can now start developing your Django project."

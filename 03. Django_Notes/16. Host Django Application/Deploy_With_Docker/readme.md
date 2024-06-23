@@ -2,31 +2,42 @@
 ```
 ▶️ venv
 🔽 .github/workflows
-  📄 pro.yml
+  📄 ci.yml
 ▶️ project_dir
 📄 Dockerfile
 📄 docker-compose.yml
 📄 requirements.txt
 📄 .env
-📄 setup.sh
+📄 entrypoint.sh
+📄 docker_prune.sh
+📄 update_nginx.sh
+📄 manage.py
+📄 readme.md
 ```
 
-# Docker Compose
-```
-docker-compose up --build
+# Docker Compose Usage
+```bash
+docker-compose up                                            // Build from scratch
+docker-compose up --build                                    // build and rebuild with existing
 docker-compose exec web python manage.py makemigrations
+// calling docker(docker-compose) -> execute(exec) -> defined image name (web) -> python command (python manage.py makemigrations)
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser admin admin admin@admin.com
-docker-compose down
+docker-compose down                                // Down will remove container and images
+docker-compose down -v                             // -v flag removes named volumes declared 
+docker-compose stop                                // simply stop docker without remove anything
+docker system prune -a -f                          // Remove All Containers
 
-docker-compose logs -f                 # View Logs
-docker-compose exec web sh             # Interactive Shell:
-docker system prune -a -f              # Remove All Containers
+docker-compose logs -f                // View Logs
+docker-compose exec web sh            // Interactive Shell:
 
-docker-compose logs -f celery_worker   # Verify Celery Worker
-docker stats                           # CPU Memory Network Block status
+
+docker-compose logs -f celery_worker   // Verify Celery Worker
+docker stats                           // CPU Memory Network Block status
 docker stats your_container_name
 docker logs your_container_name
+docker-compose logs celery_worker_app1   // celery worker1 logs
+docker-compose logs celery_worker_app2   // celery worker2 logs
 ```
 
 ## How to add Docker secrect key in github action
@@ -39,6 +50,18 @@ Click on Add Secrect Button
 
 Name * : (Input Field) DOCKER_PASSWORD
 Secret * : your_docker_password
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_HOST
+Secret * : cloud_ip_address
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_USER
+Secret * : cloud_ip_username
+Click on Add Secrect Button
+
+Name * : (Input Field) SERVER_SSH_KEY
+Secret * : ssh_key_from_cloud
 Click on Add Secrect Button
 
 Name * : (Input Field) DOMAIN_NAME
@@ -67,8 +90,10 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo mkdir -p /srv/$PROJECT_NAME
+sudo chown your_user:your_user /srv/$PROJECT_NAME
 ```
-## Deploy to Server - Push code to GitHub
+## Push code from Local to GitHub
 ```sh
 git add .
 git commit -m "Setup local Docker and CI/CD"
@@ -77,3 +102,13 @@ git push origin main
 ```
 GitHub Actions will automatically build, test, and deploy
 ```
+## Note
+```
+If use dockerhub repo for deploy then, .env add in .dockerignore
+If github repo is public then, .env add in .gitignore
+```
+## Cerbot for SSL in server
+cd /srv/$PROJECT_NAME
+git clone https://github.com/your_username/your_project.git .
+docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
+docker-compose up --build
