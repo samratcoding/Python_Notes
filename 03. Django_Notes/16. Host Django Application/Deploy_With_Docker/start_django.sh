@@ -3,19 +3,22 @@
 # Ensure the script exits on error
 set -e
 
-if [ -z "$1" ]; then
+read -p "Enter project name: " PROJECT_NAME
+
+if [ -z "$PROJECT_NAME" ]; then
     echo "No project name was supplied!"
     echo -e ">\t ./setup.sh <project_name>"
     exit 1
 fi
 
 # Variables (customize these as needed)
-PROJECT_NAME=$1
+PROJECT_NAME=$PROJECT_NAME
 DJANGO_SUPERUSER_USERNAME="admin"
 DJANGO_SUPERUSER_PASSWORD="adminpassword"
 DJANGO_SUPERUSER_EMAIL="admin@example.com"
-POSTGRES_USER=user
-POSTGRES_PASSWORD=password
+POSTGRES_USER=user2
+POSTGRES_PASSWORD=password2
+DB_NAME=test_db2
 
 # Create virtual environment
 echo "Creating virtual environment..."
@@ -49,9 +52,10 @@ DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 
 # PostgreSQL settings
+DB_NAME=$DB_NAME
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$PROJECT_NAME
+DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
 
 # Django superuser settings for automated creation
 DJANGO_SUPERUSER_USERNAME=$DJANGO_SUPERUSER_USERNAME
@@ -127,13 +131,13 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_DB: $PROJECT_NAME
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $DB_NAME
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    networks:
-      - myproject-network
+    ports:
+      - "5432:5432"
 
   web:
     build:
@@ -148,8 +152,8 @@ services:
       - .env
     depends_on:
       - db
-    networks:
-      - myproject-network
+    environment:
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
 
   nginx:
     image: nginx
@@ -162,8 +166,6 @@ services:
       - ./nginx/www:/var/www/certbot
     depends_on:
       - web
-    networks:
-      - myproject-network
 
   certbot:
     image: certbot/certbot
@@ -171,14 +173,9 @@ services:
       - ./nginx/certs:/etc/letsencrypt
       - ./nginx/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - myproject-network
 
 volumes:
   postgres_data:
-
-networks:
-  myproject-network:
 EOF
 
 # Create demo docker compose with celery
@@ -188,13 +185,13 @@ services:
   db:
     image: postgres:13
     environment:
-      POSTGRES_DB: $PROJECT_NAME
       POSTGRES_USER: $POSTGRES_USER
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $DB_NAME
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    networks:
-      - myproject-network
+    ports:
+      - "5432:5432"
 
   web:
     build:
@@ -210,10 +207,10 @@ services:
     depends_on:
       - db
       - redis
-      - celery_worker1
-      - celery_worker2
-    networks:
-      - myproject-network
+      - celery_worker_app1
+      - celery_worker_app2
+    environment:
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
 
   nginx:
     image: nginx
@@ -226,8 +223,6 @@ services:
       - ./nginx/www:/var/www/certbot
     depends_on:
       - web
-    networks:
-      - myproject-network
 
   certbot:
     image: certbot/certbot
@@ -235,15 +230,11 @@ services:
       - ./nginx/certs:/etc/letsencrypt
       - ./nginx/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - myproject-network
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
-    networks:
-      - myproject-network
 
   celery_worker_app1:
     build: .
@@ -255,7 +246,7 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$PROJECT_NAME
+      - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       - REDIS_URL=redis://redis:6379
 
   celery_worker_app2:
@@ -268,14 +259,11 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$PROJECT_NAME
+      - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       - REDIS_URL=redis://redis:6379
 
-  volumes:
-    postgres_data:
-
-  networks:
-    myproject-network:
+volumes:
+  postgres_data:
 EOF
 
 # Create requirements.txt
@@ -306,9 +294,9 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_DB: $PROJECT_NAME
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
+          POSTGRES_DB: $DB_NAME
+          POSTGRES_USER: $POSTGRES_USER
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
         ports:
           - 5432:5432
         options: >-
@@ -323,7 +311,7 @@ jobs:
           - 6379:6379
 
     env:
-      DATABASE_URL: postgres://user:password@localhost:5432/$PROJECT_NAME
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       REDIS_URL: redis://localhost:6379
 
     steps:
@@ -391,7 +379,7 @@ jobs:
       postgres:
         image: postgres:13
         env:
-          POSTGRES_DB: $PROJECT_NAME
+          POSTGRES_DB: $DB_NAME
           POSTGRES_USER: $POSTGRES_USER
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
         ports:
@@ -408,7 +396,7 @@ jobs:
           - 6379:6379
 
     env:
-      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$PROJECT_NAME
+      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       REDIS_URL: redis://localhost:6379
 
     steps:
