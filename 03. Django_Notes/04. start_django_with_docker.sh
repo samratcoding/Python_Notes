@@ -637,11 +637,9 @@ touch logs/console.log
 cat <<EOF >> ${PROJECT_NAME}/settings.py
 
 import os
-from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
 import logging
-load_dotenv()
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = os.getenv('DJANGO_DEBUG') == 'True'

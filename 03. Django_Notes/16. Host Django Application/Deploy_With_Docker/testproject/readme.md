@@ -17,9 +17,14 @@
 
 # Docker Compose Usage
 ```bash
-docker-compose up                                            // Build from scratch
-docker-compose up --build                                    // build and rebuild with existing
+docker-compose up                                         // Build from scratch
+docker-compose up --build                                 // build and rebuild with existing
+docker-compose up -d --build                              // Rebuild images and start detached mode
+// Best pratice -d --build , and sometime need to try 2-3 times
+
 docker-compose exec web python manage.py makemigrations
+
+
 // calling docker(docker-compose) -> execute(exec) -> defined image name (web) -> python command (python manage.py makemigrations)
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser admin admin admin@admin.com
@@ -90,8 +95,12 @@ sudo apt update
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo mkdir -p /srv/$PROJECT_NAME
-sudo chown your_user:your_user /srv/$PROJECT_NAME
+sudo apt-get install git
+sudo mkdir -p /srv/project
+sudo chown your_user:your_user /srv/project
+cd ~/srv/project
+git clone "repolink"
+chmod +x entrypoint.sh
 ```
 ## Push code from Local to GitHub
 ```sh
