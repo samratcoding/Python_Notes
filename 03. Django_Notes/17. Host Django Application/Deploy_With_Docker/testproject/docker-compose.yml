@@ -16,7 +16,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U user2"]
       interval: 10s
       timeout: 5s
-      retries: 5  # Adjust retries as needed
+      retries: 5 
 
   web:
     build:
