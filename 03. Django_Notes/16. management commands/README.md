@@ -1,5 +1,5 @@
 ## Example Structure
-```markdown
+```
 myproject/
 ├── myapp/
 │   ├── management/
