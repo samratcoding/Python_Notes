@@ -19,6 +19,7 @@ DJANGO_SUPERUSER_EMAIL="admin@example.com"
 POSTGRES_USER=user2
 POSTGRES_PASSWORD=password2
 DB_NAME=test_db2
+DOMAIN=localhost
 
 # Create virtual environment
 echo "Creating virtual environment..."
@@ -53,10 +54,11 @@ DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 
 # PostgreSQL settings
 SQL_ENGINE=django.db.backends.postgresql
-DB_NAME=$DB_NAME
+POSTGRES_DB=$DB_NAME
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
+DB_HOST=db
+DB_PORT=5432
 
 # Django superuser settings for automated creation
 DJANGO_SUPERUSER_USERNAME=$DJANGO_SUPERUSER_USERNAME
@@ -127,7 +129,7 @@ EOF
 # Create docker-compose file
 echo "Creating docker-compose.yml..."
 cat << EOF > docker-compose.yml
-version: '3'
+version: '3.8'
 services:
   db:
     image: postgres:13
@@ -136,9 +138,16 @@ services:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       POSTGRES_DB: $DB_NAME
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - myproject-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user2"]
+      interval: 10s
+      timeout: 5s
+      retries: 5 
 
   web:
     build:
@@ -147,14 +156,16 @@ services:
     command: /opt/app/entrypoint.sh
     volumes:
       - .:/opt/app
+      - /var/www/static/:/var/www/static/
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     depends_on:
       - db
-    environment:
-      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
+    env_file:
+      - .env
+    networks:
+      - myproject-network
 
   nginx:
     image: nginx
@@ -162,26 +173,31 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
+      - /var/www/static/:/var/www/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
+    networks:
+      - myproject-network
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+      - /var/certbot/conf:/etc/letsencrypt/:rw
+      - /var/certbot/www/:/var/www/certbot/:rw
+    networks:
+      - myproject-network
 
 volumes:
   postgres_data:
+
+networks:
+  myproject-network:
 EOF
 
 # Create demo docker compose with celery
 cat << EOF > docker_compose_with_celery.md
-version: '3'
+version: '3.8'
 services:
   db:
     image: postgres:13
@@ -190,9 +206,16 @@ services:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
       POSTGRES_DB: $DB_NAME
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - myproject-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user2"]
+      interval: 10s
+      timeout: 5s
+      retries: 5 
 
   web:
     build:
@@ -201,17 +224,19 @@ services:
     command: /opt/app/entrypoint.sh
     volumes:
       - .:/opt/app
+      - /var/www/static/:/var/www/static/
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     ports:
       - "8000:8000"
-    env_file:
-      - .env
     depends_on:
       - db
       - redis
       - celery_worker_app1
       - celery_worker_app2
-    environment:
-      DATABASE_URL: postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
+    env_file:
+      - .env
+    networks:
+      - myproject-network
 
   nginx:
     image: nginx
@@ -219,23 +244,27 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
+      - /var/www/static/:/var/www/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
+    networks:
+      - myproject-network
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+      - /var/certbot/conf:/etc/letsencrypt/:rw
+      - /var/certbot/www/:/var/www/certbot/:rw
+    networks:
+      - myproject-network
 
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - myproject-network
 
   celery_worker_app1:
     build: .
@@ -249,6 +278,8 @@ services:
     environment:
       - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       - REDIS_URL=redis://redis:6379
+    networks:
+      - myproject-network
 
   celery_worker_app2:
     build: .
@@ -262,9 +293,14 @@ services:
     environment:
       - DATABASE_URL=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@db:5432/$DB_NAME
       - REDIS_URL=redis://redis:6379
+    networks:
+      - myproject-network
 
 volumes:
   postgres_data:
+
+networks:
+  myproject-network:
 EOF
 
 # Create requirements.txt
@@ -273,6 +309,7 @@ cat << EOF > requirements.txt
 Django>=3.0,<4.0
 psycopg2-binary
 gunicorn
+uvicorn
 EOF
 
 
@@ -498,103 +535,105 @@ EOS
 
 # Start the Gunicorn server
 echo "Starting Gunicorn server..."
-exec gunicorn ${PROJECT_NAME}.wsgi:application --bind 0.0.0.0:8000
+
+
+exec gunicorn --config gunicorn_conf.py ${PROJECT_NAME}.wsgi:application
+# exec uvicorn --config uvicorn_conf.py ${PROJECT_NAME}.asgi:application
+
 EOF
+
+
+# Create gunicorn_conf.py
+cat <<EOF > gunicorn_conf.py
+# gunicorn_conf.py
+
+bind = "0.0.0.0:8000"
+workers = 4
+worker_connections = 1000
+threads = 4
+
+# (2 * core_number) + 1 = Max_Workers
+# Per workers take 100mb RAM
+# Per worker can handle 4 threads smoothly but depends
+# per workers can handle 1000 connections smoothly but depends
+
+# SSL Configuration
+certfile = "/etc/letsencrypt/live/${$DOMAIN}.com/fullchain.pem"
+keyfile = "/etc/letsencrypt/live/${$DOMAIN}.com/privkey.pem"
+
+# Logging
+loglevel = "info"
+accesslog = "-"
+errorlog = "-"
+EOF
+
+# Create uvicorn_conf.py
+cat <<EOF > uvicorn_conf.py
+# uvicorn_conf.py
+
+bind = "0.0.0.0:8000"
+workers = 4
+threads = 4
+connections = 1000
+
+# (2 * core_number) + 1 = Max_Workers
+# Per workers take 100mb RAM
+# Per worker can handle 4 threads smoothly but depends
+# per workers can handle 1000 connections smoothly but depends
+
+# SSL Configuration
+ssl_keyfile = "/etc/letsencrypt/live/${$DOMAIN}/privkey.pem"
+ssl_certfile = "/etc/letsencrypt/live/${$DOMAIN}/fullchain.pem"
+
+# Logging
+log_level = "info"
+access_log = True
+error_log = "-"
+EOF
+
 
 chmod +x entrypoint.sh
 
 # Create nginx directory and config
 mkdir nginx
-cat <<'EOF' > nginx/nginx.conf
+cat <<EOF > /nginx/conf.d/nginx.conf
+upstream web_app {
+    server backend:8000;
+}
+
+# Comment out the HTTPS section temporarily
+# server {
+#     listen 443 ssl;
+#     server_name your_domain.com;
+
+#     ssl_certificate /etc/letsencrypt/live/your_domain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/your_domain.com/privkey.pem;
+
+#     access_log /var/log/nginx/access.log;
+#     error_log /var/log/nginx/error.log;
+
+#     location /static/ {
+#         alias /var/www/static/;
+#     }
+
+#     location / {
+#         proxy_pass http://web_app;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header Host $host;
+#         proxy_redirect off;
+#     }
+# }
+
 server {
     listen 80;
-    server_name localhost;
+    server_name ${$DOMAIN}.com;
 
-    location / {
-        proxy_pass http://web:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /.well-known/acme-challenge/ {
+    location ~/.well-known/acme-challenge {
+        allow all;
         root /var/www/certbot;
     }
 
-    location /static/ {
-        alias /home/app/web/staticfiles/;
-        expires 30d;
-        access_log off;
-    }
-
-    location /media/ {
-        alias /opt/app/media/;
-        expires 30d;
-        access_log off;
-    }
-
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
-
-    add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options SAMEORIGIN;
-    add_header X-XSS-Protection "1; mode=block";
-
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-}
-
-server {
-    listen 443 ssl;
-    server_name localhost;
-
-    ssl_certificate /etc/letsencrypt/live/localhost/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/localhost/privkey.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
-
-    location / {
-        proxy_pass http://web:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /static/ {
-        alias /home/app/web/staticfiles/;
-        expires 30d;
-        access_log off;
-    }
-
-    location /media/ {
-        alias /opt/app/media/;
-        expires 30d;
-        access_log off;
-    }
-
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
-
-    add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options SAMEORIGIN;
-    add_header X-XSS-Protection "1; mode=block";
-
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
+    return 301 https://$host:$request_uri;
 }
 EOF
 
@@ -607,7 +646,7 @@ DOMAIN=$1
 IP_ADDRESS=$2
 
 # Path to your nginx configuration file
-NGINX_CONFIG="nginx/nginx.conf"
+NGINX_CONFIG="nginx/conf.d/nginx.conf"
 
 # Replace "localhost" with your domain name in nginx.conf
 sed -i "s/server_name localhost;/server_name $DOMAIN;/g" $NGINX_CONFIG
@@ -626,14 +665,18 @@ touch logs/console.log
 cat <<EOF >> ${PROJECT_NAME}/settings.py
 
 import os
-from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
 import logging
-load_dotenv()
+
+
+ALLOWED_HOSTS = ['*','app.example.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://app.example.com'
+]
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-DEBUG = os.getenv('DJANGO_DEBUG') == 'True'
+DEBUG = bool(os.getenv("DEBUG", "True"))
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 # Also, need to Configure urls.py file for media support 
@@ -652,12 +695,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles" # for collect static
 
 DATABASES = {
     'default': {
-        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        'NAME': os.environ.get("POSTGRES_DB"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("SQL_HOST", "localhost"),
-        'PORT': os.environ.get("SQL_PORT", "5432"),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB','test_db'),
+        'USER': os.getenv('POSTGRES_USER','user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD','password'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -708,6 +751,15 @@ LOGGING = {
 # in views.py or any other files
 logger = logging.getLogger("django")
 logger.info('Message')
+
+
+# Celery configuration for Redis as the broker
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'      # or 'redis://localhost:6379/0'    -> in live server   'redis://domain_or_ip:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'  # or 'redis://localhost:6379/0'    -> in live server   'redis://domain_or_ip:6379/0'  
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 EOF
 
 # Readme File
@@ -729,29 +781,34 @@ cat <<'EOF' > readme.md
 📄 readme.md
 ```
 
-# Docker Compose Usage
+# Docker Compose Usages
 ```bash
-docker-compose up                                            // Build from scratch
-docker-compose up --build                                    // build and rebuild with existing
+docker-compose up                                         # Build from scratch
+docker-compose up --build                                 # build and rebuild with existing
+docker-compose up -d --build                              # Rebuild images without logs
+# Best pratice -d --build for server, and sometime need to try 2-3 times
+
 docker-compose exec web python manage.py makemigrations
-// calling docker(docker-compose) -> execute(exec) -> defined image name (web) -> python command (python manage.py makemigrations)
+
+
+#calling docker(docker-compose) -> execute(exec) -> defined image name (web) -> python command (python manage.py makemigrations)
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser admin admin admin@admin.com
-docker-compose down                                // Down will remove container and images
-docker-compose down -v                             // -v flag removes named volumes declared 
-docker-compose stop                                // simply stop docker without remove anything
-docker system prune -a -f                          // Remove All Containers
+docker-compose down                                # Down will remove container and images
+docker-compose down -v                             # -v flag removes named volumes declared 
+docker-compose stop                                # simply stop docker without remove anything
+docker system prune -a -f                          # Remove All Containers
 
-docker-compose logs -f                // View Logs
-docker-compose exec web sh            // Interactive Shell:
+docker-compose logs -f                # View Logs
+docker-compose exec web sh            # Interactive Shell:
 
 
-docker-compose logs -f celery_worker   // Verify Celery Worker
-docker stats                           // CPU Memory Network Block status
+docker-compose logs -f celery_worker   # Verify Celery Worker
+docker stats                           # CPU Memory Network Block status
 docker stats your_container_name
 docker logs your_container_name
-docker-compose logs celery_worker_app1   // celery worker1 logs
-docker-compose logs celery_worker_app2   // celery worker2 logs
+docker-compose logs celery_worker_app1   # celery worker1 logs
+docker-compose logs celery_worker_app2   # celery worker2 logs
 ```
 
 ## How to add Docker secrect key in github action
@@ -784,31 +841,50 @@ Click on Add Secrect Button
 ```
 
 ## Generate SSH Keys To Connect between Server and Github
-```
-  >>> ssh-keygen -t ed25519 -C "your_email@example.com"   
-  >>> Enter file in which to save the key (path): _empty_ ENTER
-  >>> Enter passphrase (empty for no passphrase): _empty_ ENTER
-  >>> Enter same passphrase again: _empty_ ENTER
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"   
 
-- If Permission Denied then Own .ssh then try again to Generate SSH Keys after this:
-  >>> sudo chown -R user_name(example:root) .ssh
-                  
-- Key will generate, copy that
-- To see the key again after clear
-            >>> cat ~/.ssh/id_ed25519.pub
- - Will Open Public SSH Keys then copy the key
+# >> Enter file in which to save the key (path): _empty_ ENTER
+
+# >> Enter passphrase (empty for no passphrase): _empty_ ENTER
+
+# >> Enter same passphrase again: _empty_ ENTER
+
+# If Permission Denied then Own .ssh then try again to Generate SSH Keys after this:
+sudo chown -R user_name(example:root) .ssh  
+# Key will generate, copy that
+# To see the key again after clear
+cat ~/.ssh/id_ed25519.pub
+#Will Open Public SSH Keys then copy the key
 ```
 ## Prepare Server
-```sh
+```bash
 sudo apt update
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo mkdir -p /srv/$PROJECT_NAME
-sudo chown your_user:your_user /srv/$PROJECT_NAME
+sudo apt-get install git
+sudo mkdir -p /srv/django_project
+sudo chown your_user:your_user /srv/django_project
+cd ~/srv/django_project
+git clone "repolink"
+chmod +x entrypoint.sh
+sudo lsof -i :80   # Verify Port Availability
+sudo service apache2/others stop # If apache2 or any server exist
+```
+## Server Config
+```
+- Basic system take 1 CORE and 1 GB RAM 
+- (2 * remaining_core_number) + 1 = Max_Gunicorn_or_Uvicorn_Workers
+- Per worker take 100mb RAM
+- Per celery worker take 150mb RAM
+- Per --concurrency=2 celery worker take 1 Core
+- Check tcp/udp ports 443(https), 80(http), 5432(postgre), 8000(local), 22(SSH)
+- Each worker can use 4 threads smoothly but depends
+- Each workers can make 1000 connections smoothly but depends
 ```
 ## Push code from Local to GitHub
-```sh
+```bash
 git add .
 git commit -m "Setup local Docker and CI/CD"
 git push origin main
@@ -821,11 +897,40 @@ GitHub Actions will automatically build, test, and deploy
 If use dockerhub repo for deploy then, .env add in .dockerignore
 If github repo is public then, .env add in .gitignore
 ```
+## Name Server / DNS config
+```
+- Login to Domain Panel or Cloudflare
+- Navigate to Manage DNS
+- Add Following Records:
+```
+| Type  | Host/Name | Value                   |
+|-------|-----------|-------------------------|
+| A     | @         | Your Remote Server IP   |
+| A     | www       | Your Remote Server IP   |
+| AAAA  | @         | Your Remote Server IPv6 |
+| AAAA  | www       | Your Remote Server IPv6 |
+
+### Find IPv6/inet6
+```
+- Login server linux
+- >>> Run the command: ` ifconfig `
+- Find `inet6` that started with 2 or 3
+- example : 2a10:c700:1:649a::1
+```
+### Check it from Linux Server
+```bash
+dig domain.com
+nslookup domain.com
+```
+
 ## Cerbot for SSL in server
-cd /srv/$PROJECT_NAME
-git clone https://github.com/your_username/your_project.git .
+```bash
+cd /srv/django_project
+
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
+
 docker-compose up --build
+```
 EOF
 
 echo "Setup complete. You can now start developing your Django project."

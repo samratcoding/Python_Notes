@@ -128,8 +128,13 @@ from django.conf import settings
 import logging
 
 
+ALLOWED_HOSTS = ['*','app.oneclickarticle.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://app.oneclickarticle.com'
+]
+
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-DEBUG = os.getenv('DJANGO_DEBUG') == 'True'
+DEBUG = bool(os.getenv("DEBUG", "True"))
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 # Also, need to Configure urls.py file for media support 
@@ -149,11 +154,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles" # for collect static
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB','test_db'),
-        'USER': os.environ.get('POSTGRES_USER','user'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD','password'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': os.getenv('POSTGRES_DB','test_db'),
+        'USER': os.getenv('POSTGRES_USER','user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD','password'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -204,3 +209,12 @@ LOGGING = {
 # in views.py or any other files
 logger = logging.getLogger("django")
 logger.info('Message')
+
+
+# Celery configuration for Redis as the broker
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'      # or 'redis://localhost:6379/0'    -> in live server   'redis://domain_or_ip:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'  # or 'redis://localhost:6379/0'    -> in live server   'redis://domain_or_ip:6379/0'  
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

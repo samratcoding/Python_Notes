@@ -30,6 +30,7 @@ else:
     print(f'Superuser {username} already exists.')
 EOS
 
-# Start the Gunicorn server
-echo "Starting Gunicorn server..."
-exec gunicorn testproject.wsgi:application --bind 0.0.0.0:8000
+# Start the server
+echo "Starting server..."
+exec gunicorn --workers 3 testproject.wsgi:application --bind 0.0.0.0:8000
+# exec uvicorn testproject.asgi:application --host 0.0.0.0 --port 8000

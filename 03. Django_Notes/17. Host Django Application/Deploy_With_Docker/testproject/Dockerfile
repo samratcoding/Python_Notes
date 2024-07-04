@@ -1,7 +1,7 @@
 FROM python:3.9
 
 # Install necessary packages
-RUN apt-get update &&     apt-get install -y python3-pip python3-dev libpq-dev cron &&     apt-get clean
+RUN apt-get update && apt-get install -y python3-pip python3-dev libpq-dev cron && apt-get clean
 
 # Copy the cron job file into the container
 COPY docker_prune.sh /docker_prune.sh
