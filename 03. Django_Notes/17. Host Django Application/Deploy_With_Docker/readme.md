@@ -105,14 +105,18 @@ docker-compose version            # checking docker compose version
 
 sudo apt-get install git
 sudo mkdir -p /www/django_project
-sudo chown your_user:your_user /srv/django_project
+sudo chown your_user:your_user /www/django_project
 cd ~/www/django_project
 git clone "repolink"
+chmod +x /www/django_project
 chmod +x entrypoint.sh
-sudo lsof -i :80      # Verify Port Availability
-sudo lsof -i :8000    # Verify Port Availability
+sudo lsof -i :80      # Verify django Port Availability
+sudo lsof -i :8000    # Verify django Port Availability
+sudo lsof -i :5432    # Verify postgre db Port Availability
 sudo kill PID_Number  # If already running any port stop port
 sudo service apache2/others stop # If apache2 or any server exist
+
+docker-compose up -d --build 
 ```
 ## Server Config
 ```
