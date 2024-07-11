@@ -865,9 +865,9 @@ sudo apt autoclean && sudo apt autoremove
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo systemctl status docker      // see docker engine is running
-docker info                       // see docker status
-docker-compose version            // checking docker compose version
+sudo systemctl status docker      # see docker engine is running
+docker info                       # see docker status
+docker-compose version            # checking docker compose version
 
 sudo apt-get install git
 sudo mkdir -p /www/django_project

@@ -93,18 +93,25 @@ cat ~/.ssh/id_ed25519.pub
 ```
 ## Prepare Server
 ```bash
-sudo apt update
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt autoclean && sudo apt autoremove
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo systemctl status docker      # see docker engine is running
+docker info                       # see docker status
+docker-compose version            # checking docker compose version
+
 sudo apt-get install git
 sudo mkdir -p /www/django_project
 sudo chown your_user:your_user /srv/django_project
 cd ~/www/django_project
 git clone "repolink"
 chmod +x entrypoint.sh
-sudo lsof -i :80     # Verify Port Availability
-sudo lsof -i :8000   # Verify Port Availability
+sudo lsof -i :80      # Verify Port Availability
+sudo lsof -i :8000    # Verify Port Availability
+sudo kill PID_Number  # If already running any port stop port
 sudo service apache2/others stop # If apache2 or any server exist
 ```
 ## Server Config
