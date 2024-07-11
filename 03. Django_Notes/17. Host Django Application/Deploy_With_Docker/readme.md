@@ -103,7 +103,8 @@ sudo chown your_user:your_user /srv/django_project
 cd ~/www/django_project
 git clone "repolink"
 chmod +x entrypoint.sh
-sudo lsof -i :80   # Verify Port Availability
+sudo lsof -i :80     # Verify Port Availability
+sudo lsof -i :8000   # Verify Port Availability
 sudo service apache2/others stop # If apache2 or any server exist
 ```
 ## Server Config
