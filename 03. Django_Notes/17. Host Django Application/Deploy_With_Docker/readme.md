@@ -108,15 +108,17 @@ sudo mkdir -p /www/django_project
 sudo chown your_user:your_user /www/django_project
 cd ~/www/django_project
 git clone "repolink"
-chmod +x /www/django_project
-chmod +x entrypoint.sh
-sudo lsof -i :80      # Verify django Port Availability
-sudo lsof -i :8000    # Verify django Port Availability
-sudo lsof -i :5432    # Verify postgre db Port Availability
-sudo kill PID_Number  # If already running any port stop port
-sudo service apache2/others stop # If apache2 or any server exist
-
-docker-compose up -d --build 
+chmod +x /www/django_project        # Ensure permission for project folder
+chmod +x entrypoint.sh              # Ensure entrypoint.sh permission
+chmod +x docker_prune.sh            # Ensure docker_prune.sh permission
+chmod +x update_nginx.sh            # Ensure update_nginx.sh permission
+sudo lsof -i :80                    # Verify django Port Availability
+sudo lsof -i :8000                  # Verify django Port Availability
+sudo lsof -i :5432                  # Verify postgre db Port Availability
+sudo kill PID_Number                # If already running any port stop port
+sudo service apache2/others stop    # If apache2 or any server exist
+docker-compose up --build           # check everything is working
+docker-compose up -d --build        # run behind
 ```
 ## Server Config
 ```
