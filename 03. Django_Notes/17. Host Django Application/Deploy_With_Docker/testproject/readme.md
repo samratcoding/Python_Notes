@@ -98,13 +98,24 @@ sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo apt-get install git
-sudo mkdir -p /srv/django_project
+sudo mkdir -p /www/django_project
 sudo chown your_user:your_user /srv/django_project
-cd ~/srv/django_project
+cd ~/www/django_project
 git clone "repolink"
 chmod +x entrypoint.sh
 sudo lsof -i :80   # Verify Port Availability
 sudo service apache2/others stop # If apache2 or any server exist
+```
+## Server Config
+```
+- Basic system take 1 CORE and 1 GB RAM 
+- (2 * remaining_core_number) + 1 = Max_Gunicorn_or_Uvicorn_Workers
+- Per worker take 100mb RAM
+- Per celery worker take 150mb RAM
+- Per --concurrency=2 celery worker take 1 Core
+- Check tcp/udp ports 443(https), 80(http), 5432(postgre), 8000(local), 22(SSH)
+- Each worker can use 4 threads smoothly but depends
+- Each workers can make 1000 connections smoothly but depends
 ```
 ## Push code from Local to GitHub
 ```bash
@@ -148,9 +159,8 @@ nslookup domain.com
 
 ## Cerbot for SSL in server
 ```bash
-cd /srv/django_project
+cd /www/django_project
 
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
 
 docker-compose up --build
-```

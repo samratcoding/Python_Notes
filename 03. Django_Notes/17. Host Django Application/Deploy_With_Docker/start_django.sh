@@ -604,7 +604,7 @@ upstream web_app {
 # Comment out the HTTPS section temporarily
 # server {
 #     listen 443 ssl;
-#     server_name your_domain.com;
+#     server_name example.com www.example.com;
 
 #     ssl_certificate /etc/letsencrypt/live/your_domain.com/fullchain.pem;
 #     ssl_certificate_key /etc/letsencrypt/live/your_domain.com/privkey.pem;
@@ -626,7 +626,7 @@ upstream web_app {
 
 server {
     listen 80;
-    server_name ${$DOMAIN}.com;
+    server_name example.com www.example.com;
 
     location ~/.well-known/acme-challenge {
         allow all;
@@ -859,14 +859,20 @@ cat ~/.ssh/id_ed25519.pub
 ```
 ## Prepare Server
 ```bash
-sudo apt update
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt autoclean && sudo apt autoremove
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo systemctl status docker      // see docker engine is running
+docker info                       // see docker status
+docker-compose version            // checking docker compose version
+
 sudo apt-get install git
-sudo mkdir -p /srv/django_project
+sudo mkdir -p /www/django_project
 sudo chown your_user:your_user /srv/django_project
-cd ~/srv/django_project
+cd ~/www/django_project
 git clone "repolink"
 chmod +x entrypoint.sh
 sudo lsof -i :80   # Verify Port Availability
@@ -925,7 +931,7 @@ nslookup domain.com
 
 ## Cerbot for SSL in server
 ```bash
-cd /srv/django_project
+cd /www/django_project
 
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
 
