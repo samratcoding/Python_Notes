@@ -16,9 +16,9 @@ PROJECT_NAME=$PROJECT_NAME
 DJANGO_SUPERUSER_USERNAME="admin"
 DJANGO_SUPERUSER_PASSWORD="adminpassword"
 DJANGO_SUPERUSER_EMAIL="admin@example.com"
-POSTGRES_USER=user2
-POSTGRES_PASSWORD=password2
-DB_NAME=test_db2
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+DB_NAME=test_db
 DOMAIN=localhost
 
 # Create virtual environment
