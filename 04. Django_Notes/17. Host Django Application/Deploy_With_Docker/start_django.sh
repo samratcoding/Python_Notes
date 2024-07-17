@@ -802,11 +802,12 @@ docker system prune -a -f                          # Remove All Containers
 docker-compose logs -f                # View Logs
 docker-compose exec web sh            # Interactive Shell:
 
-
-docker-compose logs -f celery_worker   # Verify Celery Worker
-docker stats                           # CPU Memory Network Block status
+docker-compose up -d       # Only Build docker images
+docker ps                  # See images and id
+docker stats               # CPU Memory Network Block status
 docker stats your_container_name
 docker logs your_container_name
+docker-compose logs -f celery_worker    # Verify Celery Worker
 docker-compose logs celery_worker_app1   # celery worker1 logs
 docker-compose logs celery_worker_app2   # celery worker2 logs
 ```

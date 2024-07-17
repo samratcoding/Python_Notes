@@ -16,9 +16,10 @@ PROJECT_NAME=$PROJECT_NAME
 DJANGO_SUPERUSER_USERNAME="admin"
 DJANGO_SUPERUSER_PASSWORD="adminpassword"
 DJANGO_SUPERUSER_EMAIL="admin@example.com"
-POSTGRES_USER=user2
-POSTGRES_PASSWORD=password2
-DB_NAME=test_db2
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+DB_NAME=test_db
+DOMAIN=localhost
 
 # Create virtual environment
 echo "Creating virtual environment..."
@@ -155,6 +156,8 @@ services:
     command: /opt/app/entrypoint.sh
     volumes:
       - .:/opt/app
+      - /var/www/static/:/var/www/static/
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     ports:
       - "8000:8000"
     depends_on:
@@ -170,20 +173,18 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
+      - /var/www/static/:/var/www/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
     networks:
       - myproject-network
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+      - /var/certbot/conf:/etc/letsencrypt/:rw
+      - /var/certbot/www/:/var/www/certbot/:rw
     networks:
       - myproject-network
 
@@ -223,6 +224,8 @@ services:
     command: /opt/app/entrypoint.sh
     volumes:
       - .:/opt/app
+      - /var/www/static/:/var/www/static/
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     ports:
       - "8000:8000"
     depends_on:
@@ -241,20 +244,18 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
+      - /var/www/static/:/var/www/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
     networks:
       - myproject-network
 
   certbot:
-    image: certbot/certbot
+    image: certbot/certbot:latest
     volumes:
-      - ./nginx/certs:/etc/letsencrypt
-      - ./nginx/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+      - /var/certbot/conf:/etc/letsencrypt/:rw
+      - /var/certbot/www/:/var/www/certbot/:rw
     networks:
       - myproject-network
 
@@ -541,29 +542,6 @@ exec gunicorn --config gunicorn_conf.py ${PROJECT_NAME}.wsgi:application
 
 EOF
 
-# Create uvicorn_conf.py
-cat <<EOF > uvicorn_conf.py
-# uvicorn_conf.py
-
-bind = "0.0.0.0:8000"
-workers = 4
-threads = 4
-connections = 1000
-
-# (2 * core_number) + 1 = Max_Workers
-# Per workers take 100mb RAM
-# Per worker can handle 4 threads smoothly but depends
-# per workers can handle 1000 connections smoothly but depends
-
-# SSL Configuration
-ssl_keyfile = "/etc/letsencrypt/live/your_domain.com/privkey.pem"
-ssl_certfile = "/etc/letsencrypt/live/your_domain.com/fullchain.pem"
-
-# Logging
-log_level = "info"
-access_log = True
-error_log = "-"
-EOF
 
 # Create gunicorn_conf.py
 cat <<EOF > gunicorn_conf.py
@@ -580,8 +558,8 @@ threads = 4
 # per workers can handle 1000 connections smoothly but depends
 
 # SSL Configuration
-certfile = "/etc/letsencrypt/live/your_domain.com/fullchain.pem"
-keyfile = "/etc/letsencrypt/live/your_domain.com/privkey.pem"
+certfile = "/etc/letsencrypt/live/${$DOMAIN}.com/fullchain.pem"
+keyfile = "/etc/letsencrypt/live/${$DOMAIN}.com/privkey.pem"
 
 # Logging
 loglevel = "info"
@@ -589,101 +567,73 @@ accesslog = "-"
 errorlog = "-"
 EOF
 
+# Create uvicorn_conf.py
+cat <<EOF > uvicorn_conf.py
+# uvicorn_conf.py
+
+bind = "0.0.0.0:8000"
+workers = 4
+threads = 4
+connections = 1000
+
+# (2 * core_number) + 1 = Max_Workers
+# Per workers take 100mb RAM
+# Per worker can handle 4 threads smoothly but depends
+# per workers can handle 1000 connections smoothly but depends
+
+# SSL Configuration
+ssl_keyfile = "/etc/letsencrypt/live/${$DOMAIN}/privkey.pem"
+ssl_certfile = "/etc/letsencrypt/live/${$DOMAIN}/fullchain.pem"
+
+# Logging
+log_level = "info"
+access_log = True
+error_log = "-"
+EOF
+
 
 chmod +x entrypoint.sh
 
 # Create nginx directory and config
 mkdir nginx
-cat <<'EOF' > nginx/nginx.conf
+cat <<EOF > /nginx/conf.d/nginx.conf
+upstream web_app {
+    server backend:8000;
+}
+
+# Comment out the HTTPS section temporarily
+# server {
+#     listen 443 ssl;
+#     server_name example.com www.example.com;
+
+#     ssl_certificate /etc/letsencrypt/live/your_domain.com/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/your_domain.com/privkey.pem;
+
+#     access_log /var/log/nginx/access.log;
+#     error_log /var/log/nginx/error.log;
+
+#     location /static/ {
+#         alias /var/www/static/;
+#     }
+
+#     location / {
+#         proxy_pass http://web_app;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header Host $host;
+#         proxy_redirect off;
+#     }
+# }
+
 server {
     listen 80;
-    server_name localhost;
+    server_name example.com www.example.com;
 
-    location / {
-        proxy_pass http://web:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /.well-known/acme-challenge/ {
+    location ~/.well-known/acme-challenge {
+        allow all;
         root /var/www/certbot;
     }
 
-    location /static/ {
-        alias /home/app/web/staticfiles/;
-        expires 30d;
-        access_log off;
-    }
-
-    location /media/ {
-        alias /opt/app/media/;
-        expires 30d;
-        access_log off;
-    }
-
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
-
-    add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options SAMEORIGIN;
-    add_header X-XSS-Protection "1; mode=block";
-
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-}
-
-server {
-    listen 443 ssl;
-    server_name localhost;
-
-    ssl_certificate /etc/letsencrypt/live/localhost/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/localhost/privkey.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
-
-    location / {
-        proxy_pass http://web:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /static/ {
-        alias /home/app/web/staticfiles/;
-        expires 30d;
-        access_log off;
-    }
-
-    location /media/ {
-        alias /opt/app/media/;
-        expires 30d;
-        access_log off;
-    }
-
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
-
-    add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options SAMEORIGIN;
-    add_header X-XSS-Protection "1; mode=block";
-
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
+    return 301 https://$host:$request_uri;
 }
 EOF
 
@@ -696,7 +646,7 @@ DOMAIN=$1
 IP_ADDRESS=$2
 
 # Path to your nginx configuration file
-NGINX_CONFIG="nginx/nginx.conf"
+NGINX_CONFIG="nginx/conf.d/nginx.conf"
 
 # Replace "localhost" with your domain name in nginx.conf
 sed -i "s/server_name localhost;/server_name $DOMAIN;/g" $NGINX_CONFIG
@@ -852,11 +802,12 @@ docker system prune -a -f                          # Remove All Containers
 docker-compose logs -f                # View Logs
 docker-compose exec web sh            # Interactive Shell:
 
-
-docker-compose logs -f celery_worker   # Verify Celery Worker
-docker stats                           # CPU Memory Network Block status
+docker-compose up -d       # Only Build docker images
+docker ps                  # See images and id
+docker stats               # CPU Memory Network Block status
 docker stats your_container_name
 docker logs your_container_name
+docker-compose logs -f celery_worker    # Verify Celery Worker
 docker-compose logs celery_worker_app1   # celery worker1 logs
 docker-compose logs celery_worker_app2   # celery worker2 logs
 ```
@@ -909,18 +860,32 @@ cat ~/.ssh/id_ed25519.pub
 ```
 ## Prepare Server
 ```bash
-sudo apt update
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt autoclean && sudo apt autoremove
 sudo apt install docker.io docker-compose -y
 sudo systemctl start docker
 sudo systemctl enable docker
+sudo systemctl status docker      # see docker engine is running
+docker info                       # see docker status
+docker-compose version            # checking docker compose version
+
 sudo apt-get install git
-sudo mkdir -p /srv/django_project
-sudo chown your_user:your_user /srv/django_project
-cd ~/srv/django_project
+sudo mkdir -p /www/django_project
+sudo chown your_user:your_user /www/django_project
+cd ~/www/django_project
 git clone "repolink"
-chmod +x entrypoint.sh
-sudo lsof -i :80   # Verify Port Availability
-sudo service apache2/others stop # If apache2 or any server exist
+chmod +x /www/django_project        # Ensure permission for project folder
+chmod +x entrypoint.sh              # Ensure entrypoint.sh permission
+chmod +x docker_prune.sh            # Ensure docker_prune.sh permission
+chmod +x update_nginx.sh            # Ensure update_nginx.sh permission
+sudo lsof -i :80                    # Verify django Port Availability
+sudo lsof -i :8000                  # Verify django Port Availability
+sudo lsof -i :5432                  # Verify postgre db Port Availability
+sudo kill PID_Number                # If already running any port stop port
+sudo service apache2/others stop    # If apache2 or any server exist
+docker-compose up --build           # check everything is working
+docker-compose up -d --build        # run behind
 ```
 ## Server Config
 ```
@@ -975,7 +940,7 @@ nslookup domain.com
 
 ## Cerbot for SSL in server
 ```bash
-cd /srv/django_project
+cd /www/django_project
 
 docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d your_domain -d www.your_domain
 
