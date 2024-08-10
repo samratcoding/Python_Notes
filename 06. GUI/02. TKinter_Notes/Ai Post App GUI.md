@@ -236,7 +236,7 @@ if __name__== '__main__':
 ## File Upload
 ```py
 def select_file():
-    file_path = filedialog.askopenfilename(title="Select a File")
+    file_path = filedialog.askopenfilename(title="Select a File",filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx;*.xls")])
     if file_path:
         file_label.configure(text=f"Selected file: {os.path.basename(file_path)}")
 
