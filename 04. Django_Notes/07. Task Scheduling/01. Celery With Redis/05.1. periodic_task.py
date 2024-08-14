@@ -25,3 +25,7 @@ CELERY_BEAT_SCHEDULE = {
         'args': (4, 5)
     },
 }
+
+
+# celery -A myproject beat -l info        (Start Celery Beat)
+# celery -A myproject worker -B -l info   ( worker and beat together)
