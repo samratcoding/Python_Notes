@@ -17,6 +17,14 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 
+app.conf.task_routes = {
+    'app1.tasks.*': {'queue': 'worker1'},
+    'app2.tasks.*': {'queue': 'worker2'},
+}
+
+# app1, app2 is app_name & tasks is filename here 
+# worker1, worker2 is for terminal
+
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
