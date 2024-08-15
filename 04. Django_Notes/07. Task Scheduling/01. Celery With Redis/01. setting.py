@@ -32,10 +32,12 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 '''
 CELERY_TASK_ROUTES = {
-    'app1.tasks.*': {'queue': 'app1'},
-    'app2.tasks.*': {'queue': 'app2'},
+    'app1.tasks.*': {'queue': 'worker1'},
+    'app2.tasks.*': {'queue': 'worker1'},
 }
 '''
+# app1, app2 is app_name & tasks is filename here 
+# worker1, worker2 is for terminal
 
 CELERY_TASK_DEFAULT_QUEUE = 'default'
 
