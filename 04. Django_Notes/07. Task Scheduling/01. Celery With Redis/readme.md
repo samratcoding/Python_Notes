@@ -24,8 +24,8 @@ redis-server # command to check redis server is running
 - worker1, worker2 is related with project/settings.py
 ```bash
 celery -A project_name worker -l info                                 # replace project name (-l info or --loglevel=info )
-celery -A project_name worker -l info --concurrency=10 -n worker1@%h  # Running 10 task in worker1  @%h = hostname
-celery -A project_name worker -l info --concurrency=10 -n worker2     # Running 10 task in worker2
+celery -A project_name worker -l info --concurrency=10 -Q worker1     # Running 10 task in worker1 
+celery -A project_name worker -l info --concurrency=10 -Q worker2     # Running 10 task in worker2
 ```
 
 ## 04. Debug
