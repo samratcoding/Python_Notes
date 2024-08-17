@@ -49,7 +49,7 @@ sudo nano celery.conf
 ## 5.4 Enter Supervisor Configuration:
 ```
 [program:celery-worker1]
-command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker1@%%h
+command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -Q worker1
 directory=/www/wwwroot/AI_Writing_SaaS/
 user=root
 autostart=true
@@ -58,7 +58,7 @@ stopasgroup=true
 killasgroup=true
 
 [program:celery-worker2]
-command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker2@%%h
+command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -Q worker2
 directory=/www/wwwroot/AI_Writing_SaaS/
 user=root
 autostart=true
