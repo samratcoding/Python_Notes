@@ -1,75 +1,18 @@
-## Install supervisor
+## Need to run and check redis server before run celery
 ```bash
-sudo apt install supervisor
+redis-server
+```
+```
+ After setup or update -> navigate to your Django project directory, and run the Celery worker
+# Must open a new separate terminal and use these command
+# All tasks with celery will show in this tab ---
+# >>> celery -A project_name worker -l info                                 # replace project name (-l info / --loglevel=info )
+# >>> celery -A project_name worker -l info --concurrency=10 -n worker1@%h  # Running 10 task in worker1  @%h = hostname
+# >>> celery -A project_name worker -l info --concurrency=10 -n worker2     # Running 10 task in worker2
 ```
 
-## Navigate to Supervisor Configuration Directory:
-```
-cd /etc/supervisor/conf.d/
-```
-## Create a New Configuration File:
-``
-sudo nano celery.conf
-``
-## Enter Supervisor Configuration:
-```
-[program:celery-worker1]
-command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker1@%%h
-directory=/www/wwwroot/AI_Writing_SaaS/
-user=root
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
 
-[program:celery-worker2]
-command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker2@%%h
-directory=/www/wwwroot/AI_Writing_SaaS/
-user=root
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
+# Debug
 ```
-### for schedule
+# >>> celery -A project_name worker -l debug --concurrency=10 -n worker1@%h
 ```
-[program:celery-worker3]
-command=/www/wwwroot/PROJECT_PATH/venv_path/bin/celery -A beat -l info
-directory=/www/wwwroot/AI_Writing_SaaS/
-user=root
-autostart=true
-autorestart=true
-stopasgroup=true
-killasgroup=true
-```
-## Save and Exit:
-```
-Press Ctrl + O >>> then press Enter to save the file.
-Press Ctrl + X to exit nano.
-Update Supervisor Configuration:
-```
-## Linux command
-```
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl restart celery-worker1
-sudo supervisorctl restart celery-worker2
-```
-## Check celery is working
-```
-sudo service supervisor status
-sudo supervisorctl status
-```
-```
-Active: active (running) ...(time)
-```
-## Stop Celery
-```
-sudo supervisorctl
-stop celery-worker
-```
-## To start again
-```
-start celery-worker
-```
-
