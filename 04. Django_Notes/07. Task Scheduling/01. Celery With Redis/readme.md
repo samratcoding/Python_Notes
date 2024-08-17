@@ -30,7 +30,7 @@ celery -A project_name worker -l info --concurrency=10 -Q worker2     # Running 
 
 ## 04. Debug
 ```
-celery -A project_name worker -l debug --concurrency=10 -n worker1@%h
+celery -A project_name worker -l debug --concurrency=10 -Q worker_name
 ```
 # 05. celery in VPS
 ## 5.1 Install supervisor
