@@ -34,14 +34,14 @@ celery -A project_name worker -l debug --concurrency=10 -Q worker_name
 ```
 # 05. celery in VPS
 ## 5.1 Install supervisor
-```bash
+``bash
 sudo apt install supervisor
-```
+``
 
 ## 5.2 Navigate to Supervisor Configuration Directory:
-```
+``
 cd /etc/supervisor/conf.d/
-```
+``
 ## 5.3 Create a New Configuration File:
 ``
 sudo nano celery.conf
