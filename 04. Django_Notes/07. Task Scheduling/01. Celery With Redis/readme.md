@@ -1,1 +1,75 @@
+## Install supervisor
+```bash
+sudo apt install supervisor
+```
+
+## Navigate to Supervisor Configuration Directory:
+```
+cd /etc/supervisor/conf.d/
+```
+## Create a New Configuration File:
+``
+sudo nano celery.conf
+``
+## Enter Supervisor Configuration:
+```
+[program:celery-worker1]
+command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker1@%%h
+directory=/www/wwwroot/AI_Writing_SaaS/
+user=root
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+
+[program:celery-worker2]
+command=/www/wwwroot/project_path/venv_path_venv/bin/celery -A project_name worker -l info --concurrency=10 -n worker2@%%h
+directory=/www/wwwroot/AI_Writing_SaaS/
+user=root
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+```
+### for schedule
+```
+[program:celery-worker3]
+command=/www/wwwroot/PROJECT_PATH/venv_path/bin/celery -A beat -l info
+directory=/www/wwwroot/AI_Writing_SaaS/
+user=root
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+```
+## Save and Exit:
+```
+Press Ctrl + O >>> then press Enter to save the file.
+Press Ctrl + X to exit nano.
+Update Supervisor Configuration:
+```
+## Linux command
+```
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl restart celery-worker1
+sudo supervisorctl restart celery-worker2
+```
+## Check celery is working
+```
+sudo service supervisor status
+sudo supervisorctl status
+```
+```
+Active: active (running) ...(time)
+```
+## Stop Celery
+```
+sudo supervisorctl
+stop celery-worker
+```
+## To start again
+```
+start celery-worker
+```
 
