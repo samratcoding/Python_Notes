@@ -320,6 +320,7 @@ def db_save():
     gologin_id_value = gologin_id.get()
     model = str(api_model.get())
     content_command = str(content_generator.get('1.0', 'end-1c'))
+    # content_command = str(content_generator.get('1.0', END))
     intro_command = str(intro_generator.get('1.0', 'end-1c'))
     faq_command = str(faq_generator.get('1.0', 'end-1c'))
     conclusion_command = str(conclusion_generator.get('1.0', 'end-1c'))
