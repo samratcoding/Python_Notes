@@ -200,7 +200,7 @@ output = Text(terminal, bg='#3F4247', fg='white', width=62)
 output.grid(row=12, column=1, pady=0, ipadx=5)
 ```
 
-## >>> Command ................
+## >>> GET Field data and Command ................
 ```py
 command_label = Frame(content_frame)
 command_label.grid(row=13,column=0)
