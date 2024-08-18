@@ -5,6 +5,8 @@ import base64
 import threading
 import webbrowser
 
+
+
 con = sqlite3.connect('postdb.db')
 cur = con.cursor()
 cur.execute('''
@@ -56,7 +58,7 @@ if data_check is None:
             conclusion_generator,
             title_generator
         ) VALUES (
-            'https://websitename.com/',
+            '',
             'wp username',
             'app pass token',
             'category name',
@@ -354,6 +356,70 @@ def db_save():
 
 
 def reset_data():
+    # Clear and Update default data
+    website_entry.delete(0,END)
+    website_entry.insert(0,'https://websitename.com/')
+            
+    username_entry.delete(0,END)
+    username_entry.insert(0,'wp username')
+            
+    app_pass_entry.delete(0,END)
+    app_pass_entry.insert(0,'app pass token')
+            
+    category.delete(0,END)
+    category.insert(0,'category name')
+            
+    # Reset additional fields
+    openai_api.delete(0, tk.END)
+    openai_api.insert(0, 'Openai Key')
+
+    pixabay_api_key.delete(0, tk.END)
+    pixabay_api_key.insert(0, 'pexels_api')
+
+    blogspot_api.delete(0, tk.END)
+    blogspot_api.insert(0, 'blogspot_api')
+
+    blogspot_id.delete(0, tk.END)
+    blogspot_id.insert(0, 'blogspot_id')
+
+    chatgpt_email.delete(0, tk.END)
+    chatgpt_email.insert(0, 'chatgpt_email')
+
+    chatgpt_pass.delete(0, tk.END)
+    chatgpt_pass.insert(0, 'chatgpt_pass')
+
+    gologin_api.delete(0, tk.END)
+    gologin_api.insert(0, 'gologin_api')
+
+    gologin_id.delete(0, tk.END)
+    gologin_id.insert(0, 'gologin_id')
+
+    # Handle the text widgets (if any)
+    content_generator.delete("1.0", tk.END)
+    content_generator.insert(tk.END, 'I Want You To Act As A Content Writer Very Proficient SEO Writer. Do it step by step. '
+                                     'Bold the Heading of the Article using Markdown language. At least 10 headings and '
+                                     'write a 1000+ words 100% Unique, SEO-optimized, Human-Written article. '
+                                     'Write The article In Your Own Words Rather Than Copying And Pasting From Other Sources. '
+                                     'Consider perplexity and burstiness when creating content, ensuring high levels of both '
+                                     'without losing specificity or context. Use fully detailed paragraphs that engage the reader. '
+                                     'Write In A Conversational Style As Written By A Human (Use An Informal Tone, Utilize Personal Pronouns, '
+                                     'Keep It Simple, Engage The Reader, Use The Active Voice, Keep It Brief, Use Rhetorical Questions, '
+                                     'and Incorporate Analogies And Metaphors). And please don\'t give me introduction, conclusion and faq, '
+                                     'I want just content body. Now Write An Article On This Topic : ((keyword))')
+
+    intro_generator.delete("1.0", tk.END)
+    intro_generator.insert(tk.END, 'Write a introduction on this keyword intro start with technical terms, not like are you and keyword '
+                                   'must be include in output do not give me direct solution in intro section, intro last sentence must '
+                                   'be interesting to read the full article, keyword: ((keyword))\nAnd length approx 100 words\n')
+
+    faq_generator.delete("1.0", tk.END)
+    faq_generator.insert(tk.END, 'Write 5 FAQ with short answer within 1 sentence on this keyword : ((keyword)) '
+                                 'Bold the Heading of using Markdown language. And please ignore here is your output or this type sentence. '
+                                 'I want to just my targeted output')
+
+    conclusion_generator.delete("1.0", tk.END)
+    conclusion_generator.insert(tk.END, 'keyword: ((keyword))\nWrite an web article bottom summary\nAnd length approx 60 words\n')
+    # Update database also
     cur.execute('''
                     UPDATE Postdata
                     SET
@@ -385,7 +451,7 @@ Bold the Heading of using Markdown language.  And please ignore here is your out
                     WHERE ID = 1
 
                     ''')
-    window.destroy()
+    # window.destroy()
 
 
 def operation_start():
