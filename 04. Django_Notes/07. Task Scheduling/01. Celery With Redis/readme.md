@@ -1,3 +1,53 @@
+## 00. Celery Basic Rules
+- Celery function under share_task dosen't support argument that can't store in json format exmple, a Model, user can't arument
+- try: except
+```py
+try:
+ ..
+except:
+ pass
+```
+Dosen't support celery, need to use try, except as ops, final, continute etc
+Example:
+```py
+try: # Handle error entire process
+
+    # Main processing code within the loop
+    # for loop here
+    ...
+    try:
+        # Directory creation code
+    except Exception as e:
+        logger.error(f"Directory creation failed: {e}")
+        # Skip to the next iteration if there's an error in directory creation
+        continue
+    
+    try:
+        # Posting to Wordpress and related code
+    except Exception as e:
+        logger.error(f"Error during posting for keyword {keyword}: {e}")
+        keyword_model.logs = f"Exception during posting: {str(e)}"
+        keyword_model.status = 'Failed'
+        keyword_model.save()
+    
+    finally:
+        # Cleanup code (removing directory)
+        try:
+            shutil.rmtree(new_directory_path)
+        except Exception as e:
+            logger.error(f"Failed to remove directory {new_directory_path}: {e}")
+
+    # for loop end..
+    
+except Exception as e:
+    # Critical error handling outside the loop
+    logger.error(f"Critical error in BulkKeywordsJob: {e}")
+    curent_user.logs = f"Critical error: {str(e)}"
+    curent_user.save()
+
+```
+
+
 ## 01. Install Celery
 ```bash
 pip install celery
