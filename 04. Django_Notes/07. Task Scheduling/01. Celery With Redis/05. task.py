@@ -21,6 +21,20 @@ def celery_demo_task(self):
         logger.info(i)
     return 'Done'
 
+## Celery retry
+from celery import shared_task
+from celery.exceptions import Retry
+
+@shared_task(bind=True, max_retries=3)
+def click_button_task(self, page):
+    try:
+        if page.locator("path").count() > 0:
+            page.locator("path").click()
+        elif page.locator("path").count() > 0:
+            page.locator("path").click()
+    except Exception as exc:
+        raise self.retry(exc=exc)
+        
 
 # After setup or update -> navigate to your Django project directory, and run the Celery worker
 >>> celery -A project_name worker -l INFO   # replace with your project name
