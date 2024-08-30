@@ -8,11 +8,11 @@ https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlab
 ```
 ## Find all element and select by index (1--unlimited)
 ```bash
-(//element_name)[1]       # example : (//div)[1] , (//p)[1]
+(//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
 ## Find all element and select by index (1--unlimited)
 ```bash
-(//element_name)[1]       # example : (//div)[1] , (//p)[1]
+(//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
 ## Find by arribute
 ```bash
