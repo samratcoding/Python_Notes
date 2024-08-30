@@ -20,8 +20,7 @@ https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlab
 ```
 ## 05. Find next of selected element
 ```bash
-(//element_name[@arribute_name="value"])[1]//element                                # example : ((//div[@class="name"])[1])/li)[1]
-((//element_name[@arribute_name="value"])[1]//element)[1]                           # example : (//div[@class="name"])[1])/li
+((//element_name[@arribute_name="value"])[1]//element)[1]                           # example : ((//div[@class="name"])[1])/li)[1]
 ((//element_name[@arribute_name="value"])[1]//element[@arribute_name="value"])[1]   # example : ((//div[@class="name"])[1])//li[@id="name"])[1]
 ```
 ## 06. Loop logic
