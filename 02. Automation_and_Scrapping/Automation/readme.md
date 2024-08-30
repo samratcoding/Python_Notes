@@ -2,23 +2,29 @@
 ```
 https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlabgdgjcpbbndiehljcpfh
 ```
-## Find all element
+## 01. Find all element
 ```bash
 //element_name        # example : //div , //p, //img
 ```
-## Find all element and select by index (1--unlimited)
+## 02. Find all element and select by index (1--unlimited)
 ```bash
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
-## Find all element and select by index (1--unlimited)
+## 03. Find all element and select by index (1--unlimited)
 ```bash
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
-## Find by arribute
+## 04. Find by arribute
 ```bash
 (//element_name[@arribute_name="value"])[1]       # example : (//div[@class="name"])[1] , (//div[@title="name"])[1] etc
 ```
-## Loop logic
+## 05. Find next of selected element
+```bash
+(//element_name[@arribute_name="value"])[1]//element                                # example : ((//div[@class="name"])[1])/li)[1]
+((//element_name[@arribute_name="value"])[1]//element)[1]                           # example : (//div[@class="name"])[1])/li
+((//element_name[@arribute_name="value"])[1]//element[@arribute_name="value"])[1]   # example : ((//div[@class="name"])[1])//li[@id="name"])[1]
+```
+## 06. Loop logic
 ```py
 elements = selector_all('//any-xpath')
 for e in elements:
@@ -29,7 +35,7 @@ while i < n:
     print(select(f'(//path)[{str(i)}]'))
     i+=1
 ```
-## How to intertact JS click from browser devs
+## 07. How to intertact JS click from browser devs
 ```
 - from inspect element of targeted element
 - right click > copy > copy js path
