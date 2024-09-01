@@ -1,18 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, auth
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import AppUser                                    # Custom User from Model
+from .models import AppUser                                  # Custom User from Model
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.crypto import get_random_string
 
-# Create your views here.
-
 
 # Login
-
 def login(request):
     if request.user.is_authenticated:
         return redirect('dashboard')   # ``dashboard`` path is destination
@@ -37,18 +34,17 @@ def login(request):
 
 
 # Must be follow this function
-
 def logout(request):
     auth.logout(request)
     return redirect('/')
 
 
 # Register account
-
 def register(request):
     if request.method == 'POST':
         first_name = request.POST['first_name']
         last_name = request.POST['last_name']
+        user_type = request.POST['user_type']
         password1 = request.POST['password1']
         password2 = request.POST['password2']
         email = request.POST['email']
@@ -57,8 +53,12 @@ def register(request):
                 messages.info(request,"This email has already taken")
                 return redirect('register')  
             else:
-                user = AppUser.objects.create_user(is_active=False, email=email, password=password1, first_name=first_name, last_name=last_name)
-                user.save()
+                if user_type == 'teacher':
+                    user = AppUser.objects.create_teacher(is_active=False, email=email, password=password1, first_name=first_name, last_name=last_name)
+                    user.save()
+                else:
+                    user = AppUser.objects.create_student(is_active=False, email=email, password=password1, first_name=first_name, last_name=last_name)
+                    user.save() 
 
                 activation_code = get_random_string(30)
                 user.activation_code = activation_code
@@ -89,7 +89,6 @@ def register(request):
 
 
 # Active Register account
-
 def activate_account(request, activation_code):
     try:
         user = AppUser.objects.get(activation_code=activation_code, is_active=False)
@@ -100,9 +99,7 @@ def activate_account(request, activation_code):
 
 
 
-
 # When user forget password, sending reset code in mail
-
 def forget_password(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -132,7 +129,6 @@ def forget_password(request):
 
 
 
-
 # Set a new password 
 
 def forget_password_confirm(request, forget_code):
@@ -157,5 +153,75 @@ def forget_password_confirm(request, forget_code):
             return redirect('forget_password')
     except:
         return render(request, 'user/forget_password/password_reset_failed.html')
+    
 
 
+
+@login_required(login_url='login')
+def profile(request):
+    user_profile = AppUser.objects.get(email=request.user.email)
+    if request.method == 'POST':
+        profile_image = request.FILES.get('img_upload')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if first_name:
+            user_profile.first_name = first_name
+            user_profile.save()
+        if last_name:
+            user_profile.last_name = last_name
+            user_profile.save()
+        if email:
+            user_profile.email = email
+            user_profile.save()
+        if password1 and password1 == password2:
+            user_profile.set_password(password1)
+            user_profile.save()
+        if profile_image:
+            user_profile.profile_image = profile_image
+            user_profile.save()
+        return redirect('profile')
+    return render(request, 'user/profile/profile.html', {'user_profile': user_profile})
+
+
+
+#  If task
+'''
+from .models Task 
+def dashboard(request):
+    if request.user.is_teacher:
+        # Display teacher dashboard
+        tasks = Task.objects.filter(assigned_to=request.user)
+    elif request.user.is_student:
+        # Display student dashboard
+        tasks = Task.objects.filter(assigned_to=request.user)
+    else:
+        # Handle other user types
+        tasks = []
+
+    return render(request, 'dashboard.html', {'tasks': tasks})
+
+'''
+
+'''
+@login_required
+def remove_student(request, student_id):
+    # Check if the user is a teacher
+    user_profile = get_object_or_404(AppUser, user=request.user)
+    if not user_profile.teachers.exists():
+        return redirect('profile')  # Redirect to the profile page if not a teacher
+
+    student = get_object_or_404(AppUser, id=student_id)
+
+    # Check if the student is one of the teacher's students
+    if student in user_profile.students.all():
+        # Remove the student from the teacher's list of students
+        user_profile.students.remove(student)
+        return redirect('profile')  # Redirect to the profile page
+    else:
+        return redirect('profile')  # Redirect to the profile page if the student is not a student of the teacher
+
+'''

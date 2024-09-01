@@ -1,9 +1,6 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission, BaseUserManager
 from django.db import models
-from django.utils.translation import gettext_lazy as _ 
-
-''' gettext_lazy Means if application is translated into different languages, 
-    this string will be translated accordingly. ''' 
+from django.utils.translation import gettext_lazy as _  # different languages translated 
 
 
 
@@ -24,19 +21,18 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username=None, email=None, password=None, **extra_fields):
         """Create and save a SuperUser with the given email and password."""
-        
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
 
-        ''' These are optional '''
+        # These validation are optional
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
         if extra_fields.get('is_active') is not True:
             raise ValueError('Superuser must have is_active=True.')
-        ''' These are optional '''
+
         return self.create_user(email, password, **extra_fields)
 
 
@@ -48,17 +44,12 @@ class AppUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []  
-    ''' REQUIRED_FIELDS empty means there no extra fields required for creating a user.
-        If we pass REQUIRED_FIELDS = ['first_name'] need first_name when
-        no need to pass 'email' here
-    '''
+    REQUIRED_FIELDS = []  # no extra fields required for creating a user.
     
     activation_code = models.CharField(max_length=50, blank=True, null=True)
     password_reset_code = models.CharField(max_length=50, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     credit = models.IntegerField(default=0)
-    
     
     # Remove related_name for groups and user_permissions
     # Best uses is not using, where dosen't have mulple user role
@@ -66,9 +57,7 @@ class AppUser(AbstractUser):
     groups = models.ManyToManyField(Group)
     user_permissions = models.ManyToManyField(Permission)
     '''
-    
     objects = UserManager()
-
     def activate(self):
         self.is_active = True
         self.activation_code = ''
@@ -81,7 +70,7 @@ class AppUser(AbstractUser):
 
 
 '''
-Alternate Way :
+Alternate Way :  Create a Universal User Model and Create multiple Type Profile
 
 class AppUser(AbstractUser):
     first_name = models.CharField(max_length=100)
@@ -106,14 +95,23 @@ class AppUser(AbstractUser):
         self.email = self.email.lower()
         super(AppUser, self).save(*args, **kwargs)
 
-class Customer(models.Model):
+class Teacher(models.Model):
     user_profile = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    students = models.ManyToManyField(AppUser, related_name='teachers')           # Teachers have multiple students.
     activation_code = models.CharField(max_length=50, blank=True, null=True)
     password_reset_code = models.CharField(max_length=50, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    credit = models.IntegerField(default=0)
-
+    
     def activate(self):
-        # Call the activate method of the associated AppUser
+        self.user_profile.activate()
+
+class Student(models.Model):
+    user_profile = models.ForeignKey(AppUser, on_delete=models.CASCADE) 
+    teachers = models.ManyToManyField(AppUser, related_name='students')      # Students have multiple teachers.
+    activation_code = models.CharField(max_length=50, blank=True, null=True)
+    password_reset_code = models.CharField(max_length=50, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    
+    def activate(self):
         self.user_profile.activate()
 '''
