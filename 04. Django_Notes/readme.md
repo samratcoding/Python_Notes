@@ -4,7 +4,7 @@
 pip install django
 ```
 
-### Install Django Extensions Package It will help to clear pyc and cache (Optional)
+### Django Extensions Package to clear pyc and cache
 ```bash
 pip install django-extensions
 ```
@@ -41,12 +41,12 @@ Ctrl + C
 delete db migrations or db
 then delete all files from the migration folder of the app folder without __init__.py
 ```
-### For database update and first time need to run this command
+### For database migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
-### For Admin
+### For Admin user creation
 ```bash
 python manage.py createsuperuser
 winpty python manage.py createsuperuser 
@@ -59,12 +59,11 @@ static
 🔽 media
    ▶️ images 
 ```
-### For static update, especially need when application in server
-### After any File update of static folder, CSS, JS, Images need to run this command
+### Change in static folder need to run this command / especially when application in server
 ```bash
 python manage.py collectstatic
 ```
-### We can use this command either image shows from static folder or database
+### Either image shows from static folder or database
 ```html
 <img src="{% if request.user.profile_image %}{{request.user.profile_image.url}}{% else %}{% static "images/profile/user.png" %}{% endif %}" alt="" width="35" height="35" class="rounded-circle">
 ```
@@ -82,8 +81,8 @@ python manage.py collectstatic
 ```
 
 ### Changing the Django Admin Header Text
-### admin.py in any App, Registered last App in setting will get top priority
 ```py
+#  admin.py in any App, Registered last App in setting will get top priority
 admin.site.site_header = 'Project Name'   
 ```
 
