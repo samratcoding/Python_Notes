@@ -18,7 +18,7 @@ Way 2 : class AppUser(AbstractUser):
 
         class Teacher(models.Model):
             user_profile = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-            students = models.ManyToManyField(AppUser, related_name='teachers')
+            students = models.ManyToManyField(AppUser, related_name='teachers')           # Teachers have multiple students.
             activation_code = models.CharField(max_length=50, blank=True, null=True)
             password_reset_code = models.CharField(max_length=50, blank=True, null=True)
             profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
@@ -27,8 +27,8 @@ Way 2 : class AppUser(AbstractUser):
                 self.user_profile.activate()
 
         class Student(models.Model):
-            user_profile = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-            teachers = models.ManyToManyField(AppUser, related_name='students')
+            user_profile = models.ForeignKey(AppUser, on_delete=models.CASCADE) 
+            teachers = models.ManyToManyField(AppUser, related_name='students')      # Students have multiple teachers.
             
             def activate(self):
                 self.user_profile.activate()
