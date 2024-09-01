@@ -90,7 +90,7 @@ admin.site.site_header = 'Project Name'
 ## Django Architecture
 ```
 .env
-▶️ project
+▶️ core
 ▶️ app1
 ▶️ app2
 🔽 static
