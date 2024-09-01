@@ -19,6 +19,7 @@ INSTALLED_APPS = (
 ### Django Project Create..
 ```bash
 django-admin startproject "projectname" .
+django-admin startproject core .
 ```
 ### Django App Creating..
 ```bash
