@@ -6,11 +6,11 @@ https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlab
 ```bash
 //element_name        # example : //div , //p, //img
 ```
-## 02. Find all element and select by index (1--unlimited)
+## 02. Find all element and select by index (1-to-targeted)
 ```bash
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
-## 03. Find all element and select by index (1--unlimited)
+## 03. Find all element and select by index (1-to-targeted)
 ```bash
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
@@ -20,6 +20,7 @@ https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlab
 ```
 ## 05. Find next of selected element
 ```bash
+//element//element                                                                  # example : //address//button
 (//element_name[@arribute_name="value"])[1]//element                                # example : (//div[@class="name"])[1])//li
 ((//element_name[@arribute_name="value"])[1]//element)[1]                           # example : ((//div[@class="name"])[1])/li)[1]
 ((//element_name[@arribute_name="value"])[1]//element[@arribute_name="value"])[1]   # example : ((//div[@class="name"])[1])//li[@id="name"])[1]
