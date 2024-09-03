@@ -2,6 +2,7 @@
 from django.db import models           # --------------------------------------------------------- # Global
 from django.utils.text import slugify  # --------------------------------------------------------- # For Slug
 from django.utils import timezone      # --------------------------------------------------------- # For django server time
+from datetime import timedelta         # --------------------------------------------------------- # time calculation
 
 
 # Example Model for Blog Post
@@ -28,6 +29,8 @@ class BlogPost(models.Model):
     
     author = models.ForeignKey(AppUser, related_name='written_by', on_delete=models.CASCADE, null=True, blank=True)  
     editor = models.ForeignKey(AppUser, related_name='edited_by',on_delete=models.CASCADE, null=True, blank=True) 
+
+    author_birth_day = models.DateField(default=timezone.now().date() - timedelta(days=20*365))    # 20 year by defdult
     
     category = models.ForeignKey(PostCetgory, on_delete=models.SET_NULL, null=True, blank=True)   # If user will delete, category never delete
     feature_img = models.ImageField(upload_to='images/')
