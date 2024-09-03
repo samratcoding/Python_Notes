@@ -80,10 +80,20 @@ python manage.py collectstatic
 <script src="{% static 'myfirst.js' %}"></script>
 ```
 
-### Changing the Django Admin Header Text
+### Changing the Django Admin Header Text (admin.py)
 ```py
-#  admin.py in any App, Registered last App in setting will get top priority
-admin.site.site_header = 'Project Name'   
+#  admin.py in Registered last App in setting will get top priority
+from django.contrib import admin
+
+# Customize the admin site title (text shown in the browser tab)
+admin.site.site_title = "My Custom Admin Title"
+
+# Customize the header text shown on the admin page
+admin.site.site_header = "My Custom Admin Portal"
+
+# Customize the index title (optional)
+admin.site.index_title = "Welcome to My Admin Dashboard"
+
 ```
 
 ## Django Architecture
