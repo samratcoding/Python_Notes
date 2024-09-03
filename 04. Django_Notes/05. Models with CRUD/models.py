@@ -24,7 +24,7 @@ class BlogPost(models.Model):
 
     # Add a dropdown field to the model
     status_choice = [('Publish', 'publish'),('Draft', 'draft'),]
-    status = models.CharField( max_length=10, choices=BRANCH_CHOICES, default='Publish')
+    status = models.CharField( max_length=10, choices=status_choice, default='Publish')
     
     author = models.ForeignKey(AppUser, related_name='written_by', on_delete=models.CASCADE, null=True, blank=True)  
     editor = models.ForeignKey(AppUser, related_name='edited_by',on_delete=models.CASCADE, null=True, blank=True) 
