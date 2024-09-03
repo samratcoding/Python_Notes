@@ -13,3 +13,22 @@ admin.site.register(Module_Name)
 
 # Changing the Django Admin Header Text
 admin.site.site_header = 'Project Name'    
+
+
+""" Customize admin field with section """
+from .models import ModelName
+
+class CustomField(admin.ModelAdmin):
+    fieldsets = (
+        ("Section Name", {
+            'fields': ('field_name1', 'field_name2'),
+            'description': 'Description Text',
+        }),
+        ('Section Name', {
+            'fields': ('field_name3', 'field_name4'),
+            'description': 'Description Text',
+        }),
+    )
+
+admin.site.register(ModelName, CustomField)
+
