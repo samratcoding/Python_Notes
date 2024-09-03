@@ -19,6 +19,9 @@ admin.site.site_header = 'Project Name'
 from .models import ModelName
 
 class CustomField(admin.ModelAdmin):
+    list_display = ('field_name1', 'field_name2')   # Fields to show in list view
+    list_filter = ('field_name1', 'field_name2')    # Optional: Add filters to filter by these fields
+    search_fields = ('field_name1', 'field_name2')  # For search filter
     fieldsets = (
         ("Section Name", {
             'fields': ('field_name1', 'field_name2'),
