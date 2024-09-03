@@ -80,20 +80,20 @@ python manage.py collectstatic
 <script src="{% static 'myfirst.js' %}"></script>
 ```
 
-### Changing the Django Admin Header Text (admin.py)
+### Changing the Django Admin Credit (admin.py)
 ```py
 #  admin.py in Registered last App in setting will get top priority
 from django.contrib import admin
-
-# Customize the admin site title (text shown in the browser tab)
 admin.site.site_title = "My Custom Admin Title"
-
-# Customize the header text shown on the admin page
 admin.site.site_header = "My Custom Admin Portal"
-
-# Customize the index title (optional)
-admin.site.index_title = "Welcome to My Admin Dashboard"
-
+admin.site.index_title = "Welcome to Admin Dashboard"
+```
+### Changing the Django Admin Url (urls.py in project folder)
+```py
+from django.contrib import admin
+urlpatterns = [
+    path('custom-admin/', admin.site.urls),
+] 
 ```
 
 ## Django Architecture
