@@ -78,7 +78,11 @@ def AllDataShow(request):
 def single_data(request, data_id):   # ```data_id``` should be pass in url as <data_id>
     template = "single_data.html"
     sigle_data = WesiteModel.objects.get(pk=data_id)                           # we can't use `id` as function argument
-    sigle_data = WesiteModel.objects.get(user=request.user, pk=data_id)        # only authenticate user can see this data
+  
+    if request.user.is_authenticated:
+       sigle_data = WesiteModel.objects.get(pk=data_id)      # only authenticate user can see this data
+  
+    sigle_data = WesiteModel.objects.get(user=request.user, pk=data_id)        # only specific authenticate user's data will show
     context = {'sigle_data': sigle_data,'data_id': data_id}   # data id for editing request
     return render(request, template, context)
 
