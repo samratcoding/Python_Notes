@@ -13,7 +13,7 @@ file_name = '''all_data_show.html'''
   <a href="{% url 'update_data' data.id %}"> Update </a> <!----------------- URL For Updating Single Data  -->
 
 <!----------- delete data ------------ check also view.py and urls.py ----->
-  <a class="btn btn-danger ms-3 m-1" href="{% url 'delete_completed_single_post' single_data.id %}">Delete</a> 
+  <a class="btn btn-danger ms-3 m-1" href="{% url 'delete_completed_single_post' single_data.id %}">Delete</a>   <!-- id must be in models.py -->
   {% endfor %}
 
 
