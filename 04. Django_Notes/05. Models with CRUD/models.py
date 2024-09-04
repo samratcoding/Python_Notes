@@ -7,6 +7,7 @@ from datetime import timedelta         # ---------------------------------------
 
 # Example Model for Blog Post
 class PostCetgory(models.Model):
+    id = models.AutoField(primary_key=True)  # must be in to avoid future error
     name = models.CharField(max_length=50)
     slug = models.SlugField(unique=True, blank=True, null=True)
 
@@ -18,7 +19,7 @@ class PostCetgory(models.Model):
         super().save(*arg, **kwargs)
 
 class BlogPost(models.Model):
-    post_serial = models.AutoField(primary_key=True)  # Auto-incrementing serial number, 1,2,3,4,5,6....
+    id = models.AutoField(primary_key=True)  # Auto-incrementing serial number, 1,2,3,4,5,6....  must be in to avoid future error
     
     # If user will delete, all associate post will delete for ` on_delete=models.CASCADE `
     # When a model's two field get same ForeignKey the ` related_name='written_by' ` is mendatory to avoid system error
