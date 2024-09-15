@@ -3,7 +3,7 @@
 pip install djangorestframework djangorestframework-simplejwt django-cors-headers
 python manage.py startapp api
 ```
-## Config settings.py
+## settings.py
 ```py
 from datetime import timedelta
 
@@ -30,9 +30,22 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 ```
-## Config project's urls.py
-```
+## project's urls.py
+```py
 urlpatterns = [
     path('api/', include('api.urls')),
+]
+```
+## api app urls.py
+```py
+from django.urls import path
+from .views import (LoginView, RegisterView, ForgetPasswordView, SendCodeView, SetNewPasswordView)
+
+urlpatterns = [
+    path('apilogin/', LoginView.as_view(), name='apilogin'),
+    path('apiregister/', RegisterView.as_view(), name='apiregister'),
+    path('apiforgetpassword/', ForgetPasswordView.as_view(), name='apiforgetpassword'),
+    path('apisendcode/', SendCodeView.as_view(), name='apisendcode'),
+    path('apisetnewpassword/', SetNewPasswordView.as_view(), name='apisetnewpassword'),
 ]
 ```
