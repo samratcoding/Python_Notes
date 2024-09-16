@@ -1,4 +1,5 @@
 import os
+import shutil
 
 def read_env_file(env_file_path):
     """Read environment variables from a .env file."""
@@ -38,19 +39,20 @@ def delete_migration_files(app):
                 if file_name != '__init__.py':  # Keep the __init__.py
                     file_path = os.path.join(root, file_name)
                     try:
-                        os.remove(file_path)
+                        shutil.rmtree(file_path)
                         print(f"Deleted migration file: {file_path}")
-                    except PermissionError:
-                        print(f"PermissionError: Cannot delete {file_path}, file is in use.")
+                    except Exception as Ops:
+                        print(Ops)
+            
             # Deleting __pycache__ inside migrations
             for dir_name in dirs:
                 if dir_name == '__pycache__':
                     pycache_path = os.path.join(root, dir_name)
                     try:
-                        os.rmdir(pycache_path)
+                        shutil.rmtree(pycache_path)
                         print(f"Deleted __pycache__ directory: {pycache_path}")
-                    except OSError:
-                        print(f"Failed to delete __pycache__ directory: {pycache_path}, it might not be empty.")
+                    except Exception as Ops:
+                        print(Ops)
     
     # Deleting __pycache__ directly under the app directory
     pycache_app_dir = os.path.join(app_dir, '__pycache__')
@@ -58,8 +60,8 @@ def delete_migration_files(app):
         try:
             os.rmdir(pycache_app_dir)
             print(f"Deleted __pycache__ directory in {app}")
-        except OSError:
-            print(f"Failed to delete __pycache__ directory in {app}, it might not be empty.")
+        except Exception as Ops:
+            print(Ops)
 
 def main():
     # Path to the .env file
