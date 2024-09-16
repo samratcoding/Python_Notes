@@ -95,6 +95,12 @@ urlpatterns = [
     path('custom-admin/', admin.site.urls),
 ] 
 ```
+### Clean Migrations
+File : .env
+```
+APPS=app automation
+```
+Then run clean.py exist in Additional Features Folder
 
 ## Django Architecture
 ```
