@@ -25,7 +25,7 @@ python manage.py migrate
 ### 05. Clean Migrations
 File : .env
 ```
-APPS=app automation
+APPS=appname1 appname2 appname3
 ```
 ```
 Then run clean.py exist in Additional Features Folder
