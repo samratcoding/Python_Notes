@@ -35,16 +35,21 @@ python manage.py runserver / python manage.py runserver 0.0.0.0:8000 --noreload
 Ctrl + C
 ```
 
-
-### To Update database if fail to upgrade need to follow these
-```
-delete db migrations or db
-then delete all files from the migration folder of the app folder without __init__.py
-```
 ### For database migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
+```
+### Clean Migrations
+File : .env
+```
+APPS=app automation
+```
+Then run clean.py exist in Additional Features Folder
+### To Update database if fail to upgrade need to follow these
+```
+delete db migrations or db
+then delete all files from the migration folder of the app folder without __init__.py
 ```
 ### For Admin user creation
 ```bash
@@ -95,12 +100,6 @@ urlpatterns = [
     path('custom-admin/', admin.site.urls),
 ] 
 ```
-### Clean Migrations
-File : .env
-```
-APPS=app automation
-```
-Then run clean.py exist in Additional Features Folder
 
 ## Django Architecture
 ```
