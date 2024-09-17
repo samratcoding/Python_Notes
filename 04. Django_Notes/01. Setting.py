@@ -1,8 +1,15 @@
 # Setting ------------------------------------------
 
+
 # App connection..     # Probbaly 33 line
 INSTALLED_APPS = [
     'NewApp',
+]
+
+
+ALLOWED_HOSTS = ['*','domain.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://domain.com'
 ]
 
 
