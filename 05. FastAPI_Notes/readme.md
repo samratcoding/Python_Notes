@@ -21,6 +21,10 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 ```
+### fastAdmin
+```
+https://vsdudakov.github.io/fastadmin/
+```
 ### Pass Data with Path Parameter
 ```py
 @app.get("/path/{data}")
