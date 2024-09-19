@@ -3,23 +3,23 @@
 https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlabgdgjcpbbndiehljcpfh
 ```
 ## 01. Find all element
-```bash
+```py
 //element_name        # example : //div , //p, //img
 ```
 ## 02. Find all element and select by index (1-to-targeted)
-```bash
+```py
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
 ## 03. Find all element and select by index (1-to-targeted)
-```bash
+```py
 (//element_name)[1]   # example : (//div)[1] , (//p)[1]
 ```
 ## 04. Find by arribute
-```bash
+```py
 (//element_name[@arribute_name="value"])[1]       # example : (//div[@class="name"])[1] , (//div[@title="name"])[1] etc
 ```
 ## 05. Find next of selected element
-```bash
+```py
 //element//element                                                                  # example : //address//button
 element[arribute_name='value']                                                      # example : span[data-anonymize='email']
 (//element_name[@arribute_name="value"])[1]//element                                # example : (//div[@class="name"])[1])//li
