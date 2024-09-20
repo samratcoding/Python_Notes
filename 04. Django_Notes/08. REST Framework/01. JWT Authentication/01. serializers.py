@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 
 # Serializer for making post request
-class DataList(serializers.ModelSerializer):
+class DataListSerializers(serializers.ModelSerializer):
     website_name = serializers.CharField(source='login_site.website_name', read_only=True)  # Data from Foreign Model
     class Meta:
         model = DataList
