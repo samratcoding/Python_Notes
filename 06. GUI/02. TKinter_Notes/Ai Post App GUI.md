@@ -1,4 +1,4 @@
-## start
+## 01. start
 ```py
 from tkinter import *
 from tkinter import ttk, Label
@@ -13,7 +13,7 @@ window.wm_iconbitmap()
 window.iconphoto(False, iconpath)
 ```
 
-## >>> Create a Frame + Content Frame with scrollbar .............
+## 02. Create a Frame + Content Frame with scrollbar .............
 ```py
 frame = Frame(window, bg='white')
 frame.pack(fill=BOTH, expand=True)
@@ -28,12 +28,12 @@ content_frame = Frame(canvas)
 canvas.create_window((0, 0), window=content_frame, anchor=NW)
 ```
 
-## >>> website info widgets ......................
+## 03. website info widgets ......................
 ```py
 webinfo_frame = LabelFrame(content_frame, text="Input your website information")
 webinfo_frame.grid(pady=10, padx=20)
 ```
-## >>> label section ......
+## 04. label section ......
 ```py
 website_name = Label(webinfo_frame, text="Website Name", width=25)
 website_name.grid(row=0, column=0, padx=10, pady=3)
@@ -50,7 +50,7 @@ status.grid(row=0, column=3, padx=10, pady=3)
 category = Label(webinfo_frame, text="Category", width=25)
 category.grid(row=0, column=4, padx=10, pady=3)
 ```
-## >>> Input section .....
+## 05. Input section .....
 ```py
 website_entry = Entry(webinfo_frame, width=25)
 website_entry.insert(0, "edmontonranked.ca")  # Default data
@@ -74,12 +74,12 @@ status.grid(row=1, column=4,pady=10, padx=10)
 ```
 
 
-## >>> API info widgets ...............................
+## 06. API info widgets ...............................
 ```py
 apiinfo_frame = LabelFrame(content_frame, text="API Section")
 apiinfo_frame.grid(pady=10, padx=20)
 ```
-## >>> label section .............
+## 07. label section .............
 ```py
 openai_api_label = Label(apiinfo_frame, text="OpenAI API", width=20)
 openai_api_label.grid(row=2, column=0, padx=5, pady=3)
@@ -99,7 +99,7 @@ feature_img_switch_label.grid(row=2, column=4, padx=5, pady=3)
 body_img_switch_label = Label(apiinfo_frame, text="Body Img ON/OFF")
 body_img_switch_label.grid(row=2, column=5, padx=5, pady=3)
 ```
-## >>> Input section  ................
+## 08. Input section  ................
 ```py
 openai_api = Entry(apiinfo_frame, width=40)
 openai_api.insert(0, "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")
@@ -126,12 +126,12 @@ body_img_switch.set('On')
 body_img_switch.grid(row=3, column=5,pady=10, padx=5)
 ```
 
-## >>> OpenAI Command Section .................
+## 09. OpenAI Command Section .................
 ```py
 openai_section = LabelFrame(content_frame, text="OpenAI Command Section")
 openai_section.grid(pady=10, padx=10)
 ```
-## >>>> Label Section..........
+## 10. Label Section..........
 ```py
 outline_generator_label = Label(openai_section, text="Outline Generator : ")
 outline_generator_label.grid(row=4, column=0, pady=5, padx=10, sticky='w')
@@ -142,7 +142,7 @@ outline_generator.grid(row=4, column=1, pady=5, padx=10)
 intro_generator_label = Label(openai_section, text="Intro Generator : ")
 intro_generator_label.grid(row=5, column=0, pady=5, padx=10, sticky='w')
 ```
-## >>>> Input Section..........
+## 11. Input Section..........
 ```py
 intro_generator = Text(openai_section, height=2, width=106)
 intro_generator.grid(row=5, column=1, pady=5, padx=10)
@@ -177,12 +177,12 @@ excerpt_generator_label.grid(row=10, column=0, pady=5, padx=10, sticky='w')
 excerpt_generator = Text(openai_section, height=2, width=106)
 excerpt_generator.grid(row=10, column=1, pady=5, padx=10)
 ```
-## >>> Terminal .........................
+## 12. Terminal .........................
 ```py
 terminal = LabelFrame(content_frame, text="Terminal")
 terminal.grid(row=11, column=0, )
 ```
-## >>> Label  .................
+## 13. Label  .................
 ```py
 keyword_label = Label(terminal, text="Input Keywords")
 keyword_label.grid(row=11, column=0, pady=5)
@@ -190,7 +190,7 @@ keyword_label.grid(row=11, column=0, pady=5)
 output_label = Label(terminal, text="Output")
 output_label.grid(row=11, column=1, pady=5)
 ```
-## >>> Input .............
+## 14. Input .............
 ```py
 keyword_input = Text(terminal, width=62)
 keyword_input.insert('1.0', "Input keyword list here...")
@@ -200,7 +200,7 @@ output = Text(terminal, bg='#3F4247', fg='white', width=62)
 output.grid(row=12, column=1, pady=0, ipadx=5)
 ```
 
-## >>> GET Field data and Command ................
+## 15. GET Field data and Command ................
 ```py
 command_label = Frame(content_frame)
 command_label.grid(row=13,column=0)
@@ -233,7 +233,60 @@ def on_mousewheel(event):
 if __name__== '__main__':
     window.mainloop()
 ```
-## File Upload
+## 16. Pass Event and argument
+```py
+# App.py
+open = CTkButton(cookie_frame, text="Open Browser", command=lambda: browser_open())
+open.grid(row=1, column=0, padx=10, pady=10)
+close = CTkButton(cookie_frame, text="Close Browser", command=lambda: browser_close())
+close.grid(row=1, column=1, padx=10, pady=10)
+
+browser_close_event = threading.Event()
+def browser_open_thread():
+    # Clear the event if the browser is being opened
+    browser_close_event.clear()
+    cookie_save(login_status, close_event=browser_close_event)
+def browser_close():
+    # Set the event to signal the browser should close
+    browser_close_event.set()
+
+# component.py
+def cookie_save(login_status, close_event):
+    storage_state_file = "storage_state.json"
+    def is_storage_state_valid(file_path):
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                try:
+                    json.load(f)  # Attempt to load JSON to validate
+                    return True
+                except json.JSONDecodeError:
+                    return False
+        return False
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(
+            headless=False,
+            args=['--disable-blink-features=AutomationControlled'],
+        )
+
+        if is_storage_state_valid(storage_state_file):
+            context = browser.new_context(storage_state=storage_state_file)
+        else:
+            context = browser.new_context()
+        page = context.new_page()
+        page.goto("https://www.linkedin.com/")
+
+        # Check periodically whether the close_event is set
+        while not close_event.is_set():
+            # Perform any additional actions here if necessary
+            pass
+
+        # Save the storage state (including cookies)
+        context.storage_state(path=storage_state_file)
+        login_status.configure(text='Login Status : True')
+        print("Session saved.")
+        browser.close()
+```
+## 17. File Upload
 ```py
 def select_file():
     file_path = filedialog.askopenfilename(title="Select a File",filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx;*.xls")])
