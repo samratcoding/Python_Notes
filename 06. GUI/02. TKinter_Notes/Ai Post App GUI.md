@@ -301,3 +301,124 @@ file_label.grid(row=2, column=0, padx=10, pady=3)
 upload_button = CTkButton(info_frame, text="Select File", command=lambda: select_file())
 upload_button.grid(row=2, column=1)
 ```
+## 18. Database
+```py
+from customtkinter import *
+import sqlite3
+import threading
+
+url_db = 'https://www.linkedin.com/sales/search/people?query='
+start_page_db = '1'
+end_page_db = '100'
+Output_Folder_db = 'Output'
+
+con = sqlite3.connect('database.db')
+cur = con.cursor()
+cur.execute('''
+            CREATE TABLE IF NOT EXISTS Postdata (
+                ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                url CHAR(500),
+                start_page CHAR(10),
+                end_page CHAR(10),
+                Output_Folder CHAR(10)
+            )   
+            ''')
+data_check = cur.execute('''SELECT url FROM Postdata WHERE ID=1''').fetchone()
+print(data_check)
+
+if data_check == None:
+    cur.execute(f'''
+                    INSERT INTO Postdata(
+                        url,
+                        start_page,
+                        end_page,
+                        Output_Folder
+                        )
+                    VALUES(
+                        '{url_db}',
+                        '{start_page_db}',
+                        '{end_page_db}',
+                        '{Output_Folder_db}' 
+                                               
+                    )
+                    ''')
+
+window = CTk()
+set_default_color_theme("green")
+set_appearance_mode("light")
+window.title("Linkedin Scrapper")
+window.geometry("600x600")
+window.wm_iconbitmap()
+
+# Database in component field
+url_input = CTkTextbox(url_frame, fg_color=('black', 'white'), text_color=('white', 'black'), width=550, height=80)
+url_input.insert('1.0',str(cur.execute('''SELECT url FROM Postdata WHERE ID=1''').fetchone()[0]))
+url_input.grid(row=3, column=0, padx=5, pady=(5, 10))
+
+# Databse operation
+Update = CTkButton(command_label, text='✔ Save Data', fg_color=("#2AA26F"), corner_radius=20,command=lambda: db_save())
+Update.grid(row=15, column=1, padx=12, pady=10, ipadx=10)
+Reset = CTkButton(command_label, text='↻ Reset Data', fg_color=("#EB4C42"), corner_radius=20,command=lambda: reset_data())
+Reset.grid(row=15, column=2, padx=12, pady=10, ipadx=10)
+
+# Save databse
+def db_save():
+    get_url = str(url_input.get('1.0',END))
+    get_start_page = str(start_page.get())
+    get_end_page = str(end_page.get())
+    get_Output_Folder = str(Output_Folder.get())
+
+    cur.execute('''
+        UPDATE Postdata
+        SET
+            url = ?,
+            start_page = ?,
+            end_page = ?,
+            Output_Folder = ?
+            
+        WHERE ID = 1
+    ''', (
+        get_url,
+        get_start_page,
+        get_end_page,
+        get_Output_Folder
+    ))
+
+# reset database
+def reset_data():
+    # Clear and update fields data
+    url_input.delete('1.0',END)
+    url_input.insert('1.0', url_db)
+
+    start_page.delete(0,END)
+    start_page.insert(0,start_page_db)
+
+    end_page.delete(0,END)
+    end_page.insert(0,end_page_db)
+
+    Output_Folder.delete(0,END)
+    Output_Folder.insert(0,Output_Folder_db)
+
+    # Update database
+    cur.execute(f'''
+                    UPDATE Postdata
+                    SET
+                        url = '{url_db}',
+                        start_page = '{start_page_db}',  
+                        end_page = '{end_page_db}',
+                        Output_Folder = '{Output_Folder_db}'
+                          
+                    WHERE ID = 1
+
+                    ''')
+    # window.destroy()
+# Start operation with pass argument
+def operation_start_thread():
+    get_url = url_input.get('1.0',END)
+    get_start_page = start_page.get()
+    get_end_page = end_page.get()
+    get_Output_Folder = Output_Folder.get()
+    browser_status = Browser_Status.get()
+    print(browser_status)
+    scrapper_loop(get_url, get_start_page, get_end_page, get_Output_Folder,browser_status,log)
+```
