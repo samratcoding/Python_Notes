@@ -4,7 +4,7 @@
 
 from rest_framework import serializers
 
-class TextSerializer(serializers.Serializer):
+class DataSerializer(serializers.Serializer):
     input_text1 = serializers.CharField(max_length=1000)
     input_text2 = serializers.CharField(max_length=1000)
 
