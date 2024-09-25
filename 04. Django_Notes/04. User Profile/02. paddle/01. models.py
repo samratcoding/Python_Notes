@@ -3,19 +3,21 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _ 
 from django.utils import timezone
 
-''' gettext_lazy Means if application is translated into different languages, 
-    this string will be translated accordingly. ''' 
-
-
 # ****************  Subscriptions Packages
 class CreditPackage(models.Model):
-    name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    credits = models.IntegerField(default=0)
+    name = models.CharField(max_length=255, default='Basic')
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=50)
+    credits = models.IntegerField(default=50000)
     days = models.IntegerField(default=30)
-
+    product_id = models.CharField(max_length=150, null=True, blank=True)
     def __str__(self):
         return self.name
+
+class PaddleToken(models.Model):
+    client_token = models.CharField(max_length=150, null=True, blank=True)
+    api_key = models.CharField(max_length=150, null=True, blank=True)
+    def __str__(self):
+        return "Paddle Tokens"
 
 
 
@@ -34,7 +36,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(self, username=None, email=None, password=None, **extra_fields):
         """Create and save a SuperUser with the given email and password."""
         
         extra_fields.setdefault('is_staff', True)
@@ -62,59 +64,59 @@ class AppUser(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  
-    ''' REQUIRED_FIELDS empty means there no extra fields required for creating a user.
-        If we pass REQUIRED_FIELDS = ['first_name'] need first_name when
-        no need to pass 'email' here
-    '''
-    
     activation_code = models.CharField(max_length=50, blank=True, null=True)
     password_reset_code = models.CharField(max_length=50, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     credit = models.IntegerField(default=0)
     expire_date = models.DateField(default=timezone.now)
-  
+    thread = models.IntegerField(default=1)
+
     objects = UserManager()
-  
+
     def activate(self):
         self.is_active = True
         self.activation_code = ''
         self.save()
     
     def save(self, *args, **kwargs):        # For email Lowercase
-        self.email = self.email.lower()
+        if self.email:
+            self.email.lower()
         super(AppUser, self).save(*args, **kwargs)
 
+    
     # *****************  Package in user profile with forigenkey
     credit_package = models.ForeignKey(CreditPackage, on_delete=models.SET_NULL, null=True, blank=True)
-  
     # *****************  Credit purchase action, increase credit and expire date
     def purchase_credit(self, credit_package):
         self.credit_package = credit_package
         self.credit += credit_package.credits
         self.expire_date = timezone.now() +  timezone.timedelta(credit_package.days)
-
         self.save()
-
+        
     # ************  Reducing credit when use it by user
     def use_credit(self, words):
-      
+        print(' Outer Words : ', words)
         if self.credit >= words:
+            print(' Inner Words : ', words)
             self.credit -= words
             self.save()
+            print(' Inner 2 : ', words)
             return True
+        print('last words')
         return False
-      
+        
    # *********** Credit expiration after expire datae, 3 way credit expire logic perform
    # *********** 01. When user visit profile,
    # *********** 02. When user going to use credit
    # *********** 03. When admin visit user profile
    # *********** 04. or any inetaction with credit, credit_expiration() function perform
+    
     def credit_expiration(self):
         if self.credit > 0:
             current_datetime = timezone.now()
             current_date = current_datetime.date()
             if current_date > self.expire_date:
                 self.credit = 0
-                self.save()
+                self.credit.save()
                 return True
         return False
