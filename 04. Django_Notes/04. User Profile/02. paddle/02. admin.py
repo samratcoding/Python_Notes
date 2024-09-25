@@ -5,7 +5,7 @@ from .models import *  # Replace with your custom user model
 # admin.site.register(AppUser)
 
 # Changing the Django Admin Header Text
-admin.site.site_header = 'AI Writing Project'   
+admin.site.site_header = 'Project Name'   
 
 
 # Custom Admin View for User Management
@@ -24,7 +24,7 @@ class AppUserAdmin(UserAdmin):
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
-        ('Custom Fields', {'fields': ('activation_code', 'password_reset_code', 'profile_image', 'credit', 'expire_date', 'credit_package')}),
+        ('Custom Fields', {'fields': ('activation_code', 'password_reset_code', 'profile_image', 'credit', 'thread' ,'expire_date', 'credit_package')}),
     )
 
     add_fieldsets = (
@@ -34,6 +34,7 @@ class AppUserAdmin(UserAdmin):
         }),
     )
 
+    # *********** Purchase by Admin ****************
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         # Check if a credit package is selected and update user's credit accordingly
@@ -41,6 +42,7 @@ class AppUserAdmin(UserAdmin):
         if selected_package:
             obj.purchase_credit(selected_package)
 
+    # *************** Credit expiration check from admin view ****************
     def changelist_view(self, request, extra_context=None):
         # Check credit expiration for all users
         users = AppUser.objects.all()
@@ -50,3 +52,5 @@ class AppUserAdmin(UserAdmin):
 
 admin.site.register(AppUser, AppUserAdmin)
 admin.site.register(CreditPackage)
+admin.site.register(PaddleToken)
+
