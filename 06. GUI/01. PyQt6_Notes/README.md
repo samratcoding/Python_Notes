@@ -48,9 +48,9 @@ pip install pyqt6-tools
 pip install pyqt-tools
 ```
 ```py
-[https://www.qt.io/download-dev](https://build-system.fman.io/qt-designer-download)
-[https://feathericons.com/](https://feathericons.com/)
-[QT Design Tools exe](https://drive.google.com/file/d/13wMzZ5AZ6H-8JFYmxiEr6FDa0_9sE9L6/view?usp=sharing)
+https://build-system.fman.io/qt-designer-download
+https://feathericons.com/
+https://drive.google.com/file/d/13wMzZ5AZ6H-8JFYmxiEr6FDa0_9sE9L6/view?usp=sharing
 ```
 #### Qt Designer Path
 ```bash
