@@ -43,8 +43,8 @@ my_project/
 ```
 ## START
 ```bash
-pip install pyqt6
-pip install pyqt6-tools
+pip install pyqt6, pyqt6-tools
+# pip install pyqt6-tools
 ```
 #### Qt Designer Path
 ```bash
