@@ -48,7 +48,7 @@ pip install pyqt6-tools
 pip install pyqt-tools
 ```
 ```py
-https://www.qt.io/download-dev
+[https://www.qt.io/download-dev](https://build-system.fman.io/qt-designer-download)
 ```
 #### Qt Designer Path
 ```bash
