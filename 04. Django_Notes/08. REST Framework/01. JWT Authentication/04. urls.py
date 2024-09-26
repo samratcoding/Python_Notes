@@ -1,3 +1,9 @@
+# Core.urls / Project.urls *******************************
+urlpatterns = [
+    path('api/', include('api.urls')),
+]
+# App.urls ***********************
+
 from django.urls import path
 from .views import (LoginView, RegisterView, ForgetPasswordView, SendCodeView, SetNewPasswordView, DataListView)
 
