@@ -45,6 +45,10 @@ my_project/
 ```bash
 pip install pyqt6
 pip install pyqt6-tools
+pip install pyqt5-tools
+```
+```py
+https://www.qt.io/download-dev
 ```
 #### Qt Designer Path
 ```bash
