@@ -30,7 +30,7 @@ class LoginView(APIView):
 class DataListView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
-        Query = request.headers.get('Query-Parameter')
+        Query = request.headers.get('Query-Parameter')  # Extra parameter from 
         if not login_token:
             return JsonResponse({'error': 'Login token missing'}, status=400)
           
