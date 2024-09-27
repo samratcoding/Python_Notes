@@ -52,6 +52,11 @@ https://build-system.fman.io/qt-designer-download
 https://feathericons.com/
 https://drive.google.com/file/d/13wMzZ5AZ6H-8JFYmxiEr6FDa0_9sE9L6/view?usp=sharing
 ```
+linux
+```bash
+sudo apt-get install pyqt5-dev-tools
+sudo apt-get install pyqt6-dev-tools
+```
 #### Qt Designer Path
 ```bash
 env\Lib\site-packages\qt6_applications\Qt\bin
