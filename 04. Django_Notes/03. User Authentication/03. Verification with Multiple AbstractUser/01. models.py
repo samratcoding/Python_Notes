@@ -11,6 +11,10 @@ ________________________________________________________________________________
 ________________________________________________________________________________
 '''
 
+''' When uses user custom user, user model shold be '''
+from django.conf import settings
+class ModelName(models.Model):
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL)
 
 class UserManager(BaseUserManager):
     """User manager action for, superuser and multiple user type"""
