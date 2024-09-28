@@ -3,6 +3,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _  # different languages translated 
 
 
+''' When uses user custom user, user model shold be '''
+from django.conf import settings
+class ModelName(models.Model):
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL)
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
