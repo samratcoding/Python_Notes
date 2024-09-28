@@ -1,5 +1,5 @@
 ## 01. Simple Posting
-```
+```py
 import requests
 from requests.auth import HTTPBasicAuth
 
