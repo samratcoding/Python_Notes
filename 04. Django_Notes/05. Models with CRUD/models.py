@@ -5,6 +5,11 @@ from django.utils import timezone      # ---------------------------------------
 from datetime import timedelta         # --------------------------------------------------------- # time calculation
 
 
+''' When uses user custom user, user model shold be '''
+from django.conf import settings
+class ModelName(models.Model):
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL)
+
 # Example Model for Blog Post
 class PostCetgory(models.Model):
     id = models.AutoField(primary_key=True)  # must be in to avoid future error
@@ -32,8 +37,8 @@ class BlogPost(models.Model):
     # need to use related name when Multiple field uses same inherite modle like ` AppUser `
     author = models.ForeignKey(AppUser, related_name='written_by', on_delete=models.CASCADE, null=True, blank=True)  
     editor = models.ForeignKey(AppUser, related_name='edited_by',on_delete=models.CASCADE, null=True, blank=True) 
-    # user =  models.ForeignKey(settings.AUTH_USER_MODEL)
-    ''' When uses user custom user ``
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL)
+    ''' When uses user custom user '''
 
     author_birth_day = models.DateField(default=timezone.now().date() - timedelta(days=20*365))    # 20 year by defdult
     
@@ -66,8 +71,8 @@ class Book(models.Model):
 # each Profile is linked to exactly one User, and each User has only one Profile.
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ''' When uses user custom user ``
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ''' When uses user custom user '''
 
 #  Each Course can have multiple Students enrolled, and each Student can take multiple Courses.
 class Student(models.Model):
