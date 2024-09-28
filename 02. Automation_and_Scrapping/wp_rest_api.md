@@ -23,7 +23,27 @@ else:
     print(f"Failed to create post. Status code: {response.status_code}")
     print("Response:", response.json())  # Error details
 ```
-## 02. Create Category
+## 02. Posting with header passing
+```py
+json_url = website_url + 'wp-json/wp/v2'
+token = base64.standard_b64encode((Username + ':' + App_pass).encode('utf-8'))
+headers = {'Authorization': 'Basic ' + token.decode('utf-8')}
+post = {'title': 'title',
+        'slug': 'slug',
+        'status': 'draft/publish',
+        'content': 'post_body',
+        'format': 'standard',
+        'featured_media': int(image_id)
+}
+r = requests.post(json_url + '/posts', headers=headers, json=post)
+if r.status_code == 201:
+    print("Post created successfully!")
+    print("Response:", response.json())  # The created post data
+else:
+    print(f"Failed to create post. Status code: {response.status_code}")
+    print("Response:", response.json())  # Error details
+```
+## 03. Create Category
 ```py
 def create_category(cat_name, json_url, username, password):
     id = 0
@@ -40,7 +60,7 @@ def create_category(cat_name, json_url, username, password):
                     id = str(cat['id'])
     return id
 ```
-## 03. Create Image
+## 04. Create Image
 ```py
 
 def create_img(file_path, username, password):
