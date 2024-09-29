@@ -5,7 +5,7 @@ Databse Handle with Tortoise ORM (async) - CRUD with Example
 Databe handle without any ORM - CRUD
 ```
 
-### Databse Handle with SQLAlchemy ORM
+### i. Databse Handle with SQLAlchemy ORM
 ```bash
 pip install sqlalchemy
 pip install sqlalchemy alembic   # for db migrations
@@ -185,7 +185,7 @@ delete_all_data()
 
 
 
-### Databse Handle with Tortoise ORM
+### ii. Databse Handle with Tortoise ORM
 ```bash
 pip install tortoise-orm aiosqlite
 pip install tortoise-orm aerich        # DB Migrations
@@ -436,7 +436,7 @@ run_async(main())
 
 
 
-### Databse Handle without ORM
+### iii. Databse Handle without ORM
 #### 01: Create the Database and Tables (initial)
 ```py
 import sqlite3
