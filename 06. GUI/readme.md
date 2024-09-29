@@ -8,6 +8,22 @@ Databe handle without any ORM - CRUD
 ### Databse Handle with SQLAlchemy ORM
 ```bash
 pip install sqlalchemy
+pip install sqlalchemy alembic   # for db migrations
+```
+DB Migrations
+```bash
+alembic init alembic       # This will create a new alembic folder with configuration files and a migration script folder
+# Open the generated alembic.ini   sqlalchemy.url = sqlite:///websites.db
+# Next, modify the env.py
+```
+```py
+# env.p
+from app.models import Base  # Import your Base (declarative_base) from models
+target_metadata = Base.metadata
+```
+```bash
+alembic revision --autogenerate -m "Initial migration"  # create your first migration  ` initial migrations is comment `
+alembic upgrade head                                    # Apply the Migration                       
 ```
 #### 01. Define the Database Models SQLAlchemy ORM (Create)
 ```py
@@ -172,8 +188,21 @@ delete_all_data()
 ### Databse Handle with Tortoise ORM
 ```bash
 pip install tortoise-orm aiosqlite
+pip install tortoise-orm aerich        # DB Migrations
+```
+DB Migrations
+```bash
+aerich init -t app.models   # `app.models` refers to your Tortoise settings module
+aerich init-db              # Create the First Migration
+aerich migrate              # Run More Migrations:
+aerich upgrade              # Apply the Migrations
 ```
 #### 01. Define Models in Tortoise ORM (initial)
+```
+app        : Folder Name
+models     : models.py db file name
+aerich.models  : for DB migrations
+```
 config.json
 ```json
 {
@@ -182,7 +211,7 @@ config.json
     },
     "apps": {
         "models": {
-            "models": ["__main__"],
+            "models": ["app.models", "aerich.models"],
             "default_connection": "default"
         }
     }
