@@ -19,6 +19,7 @@ response = requests.post(url, auth=HTTPBasicAuth(username, password), json=post_
 if response.status_code == 201:
     print("Post created successfully!")
     print("Response:", response.json())  # The created post data
+    print('link : ', response.json().get('guid').get('rendered'))
 else:
     print(f"Failed to create post. Status code: {response.status_code}")
     print("Response:", response.json())  # Error details
