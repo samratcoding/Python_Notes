@@ -1,5 +1,5 @@
 
-EMAIL_HOST_PASSWORD = 'dzkaxrblycvbdtfg'   
+EMAIL_HOST_PASSWORD = 'xxxxxxxxxxxxxxxxx'   
 # Step 1: https://myaccount.google.com/
 # Step 2: From Security section turn on 2 step verification
 # Step 3: Search with " App Passwords "
@@ -11,7 +11,7 @@ EMAIL_HOST = 'smtp.googlemail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mdsamrat25800@gmail.com'
-EMAIL_HOST_PASSWORD = 'dzkaxrblycvbd'   
+EMAIL_HOST_PASSWORD = 'xxxxxxxxxxxxxxxx'   
 DEFAULT_FROM_EMAIL = 'mdsamrat25800@gmail.com'
 PASSWORD_RESET_TIMEOUT = 14400  # Seconds
 
