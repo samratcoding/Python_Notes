@@ -8,8 +8,10 @@ from ipware import get_client_ip
 
 def ip(request):
     # Get the visitor's IP address
-    visitor_ip = request.META.get('REMOTE_ADDR')
+    visitor_device_ip = request.META.get('REMOTE_ADDR')
     client_ip, status = get_client_ip(request)
+
+    ip_prefix = '.'.join([part for part in client_ip.split('.')[:3]])  # last two digit can be change that's why split and remove
 
     # browser_fingerprint
     browser_fingerprint = fingerprint.get(request)
@@ -20,8 +22,9 @@ def ip(request):
     browser = user_agent.browser
     os = user_agent.os
 
-    response = f"<h2>Visitor IP: {visitor_ip}</h2><br>"
-    response += f"<h2>Visitor IP 2: {client_ip}</h2><br>"
+    response = f"<h2>visitor device IP: {visitor_device_ip}</h2><br>"
+    response += f"<h2>client_ip: {client_ip}</h2><br>"
+    response += f"<h2>ip_prefix: {ip_prefix}</h2><br>"
     response += f"<h2>Device: {device}</h2><br>"
     response += f"<h2>Browser: {browser}</h2><br>"
     response += f"<h2>Operating System: {os}</h2>"
