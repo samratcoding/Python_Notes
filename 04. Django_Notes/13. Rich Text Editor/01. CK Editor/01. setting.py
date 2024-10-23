@@ -1,5 +1,6 @@
 '''
  pip install django-ckeditor
+ pip install django-ckeditor-5
  pip install pillow
 '''
 
