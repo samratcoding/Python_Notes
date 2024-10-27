@@ -45,7 +45,7 @@ while i < len(company_name):
     i += 1
 
 # List to CSV - Write the data after the loop completes
-with open('test.csv', 'w', newline='') as file:
+with open('test.csv', 'w', newline='', encoding='utf-8') as file:
     writer = csv.DictWriter(file, fieldnames=header)
     writer.writeheader()  # Write CSV Header
     writer.writerows(dicts_list)  # Write CSV Rows
@@ -64,7 +64,7 @@ rows = [ ['Nikhil', 'COE', '2', '9.0'],
 		['Prateek', 'MCE', '3', '7.8'],
 		['Sahil', 'EP', '2', '9.1']
        ]
-with open('test.csv', 'w') as file:
+with open('test.csv', 'w', newline='', encoding='utf-8') as file:
 	# using csv.writer method from CSV package
 	write = csv.writer(file)
 	
@@ -85,7 +85,7 @@ while start_page < targeted_page:
 	data_list = [single_data[0], single_data[1], single_data[2]]
 	write_list.append(data_list)
 	header = ['Name','ID','Address']
-	with open('test.csv', 'w') as file:
+	with open('test.csv', 'w', newline='', encoding='utf-8') as file:
 		write = csv.writer(file)
 		write.writerow(header)
 		write.writerows(write_list)
