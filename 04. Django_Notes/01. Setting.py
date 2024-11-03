@@ -19,6 +19,9 @@ DIRS': [BASE_DIR / 'templates'], # Probbaly 59 line
 
 
 # Static File Connection..   # Probbaly 123 line
+# CSS, JS, Static Icon, Logo etc
+# static folder is required
+# static images will have in this folder
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
