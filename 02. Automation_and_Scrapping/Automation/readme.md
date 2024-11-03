@@ -2,6 +2,9 @@
 ```
 https://chromewebstore.google.com/detail/selectorshub-xpath-helper/ndgimibanhlabgdgjcpbbndiehljcpfh
 ```
+```
+(//div[@id='idname'])[1]   //use this way is best case for single element
+```
 ## 01. Find all element
 ```py
 //element_name        # example : //div , //p, //img
