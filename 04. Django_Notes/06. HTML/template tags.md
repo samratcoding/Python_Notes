@@ -4,6 +4,7 @@
 |--------------------  |--------------------------------------------------------------|----------------------------------------------------|
 | `{% load static %} ` | calling static method                                        | `place {% load static %} at top of html file`|
 | `{% static 'style.css' %} ` | calling css/js file                                   | `calling css or js file`|
+| `{% static 'logo.svg' %} ` | calling static image file                              | `must be in static folder`|
 | `{% for %}`        | Loops over a sequence                                          | `{% for item in items %} {{ item }} {% endfor %}`|
 | `{% loop counter %}` | To serial a list                                             |  `{% for item in items %} {{ forloop.counter }} {% endfor %}` |
 | `{% if %}`         | Checks if a condition is true                                | `{% if user.is_authenticated %} Hello, {{ user.username }}! {% endif %}` |
