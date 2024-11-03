@@ -1,4 +1,8 @@
-
+### 00. Env Setup
+```basg
+python -m venv env
+source env/scripts/activate
+```
 ### 01. Django install..
 ```bash
 pip install django
